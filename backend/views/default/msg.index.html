@@ -81,7 +81,7 @@
 				, { field: 'message', title: '说明', width: 200 }
 				, {
 					fixed: 'right', field: 'status', title: '状态', width: 110, sort: true, templet: function (res) {
-						return res.status == 1 ? '<em class="green">' + lang.send_success + '</em>' : '<em>' + lang.send_fail + '</em>';
+						return res.status == 1 ? '<em class="green">' + lang.send_success + '</em>' : '<em>' + lang.send_failed + '</em>';
 					}
 				}
 			]]

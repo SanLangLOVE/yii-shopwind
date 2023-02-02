@@ -205,6 +205,9 @@ class Weixin
 
 	/**
 	 * 获取小程序 URL Link
+	 * 自 2022 年 4 月 11 日起，URL Link有效期最长 30 天，不再支持永久有效的URL Link、不再区分短期有效URL Link与长期有效URL Link。
+	 * 若在微信外打开，用户可以在浏览器页面点击进入小程序。每个独立的URL Link被用户访问后，仅此用户可以再次访问并打开对应小程序，
+	 * 其他用户无法再次通过相同URL Link打开该小程序
 	 */
 	public function getWxalink($post = [])
 	{

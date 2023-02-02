@@ -22,6 +22,7 @@ use common\models\StoreModel;
 use common\library\Language;
 use common\library\Timezone;
 use common\library\Def;
+use common\library\Page;
 
 /**
  * @Id Buyer_orderEvaluateForm.php 2018.9.19 $
@@ -54,6 +55,36 @@ class Buyer_orderEvaluateForm extends Model
 		}
 	
 		return $orderInfo;
+	}
+
+	/**
+	 * 获取我的已评价订单
+	 */
+	public function getEvaluateList($post = null) 
+	{
+		$query = OrderGoodsModel::find()->alias('og')
+			->select('og.spec_id,og.order_id,og.goods_id,og.goods_name,og.specification,og.price,og.quantity,og.goods_image,og.evaluation,og.comment,og.reply_comment,og.reply_time,og.images,o.order_sn,o.evaluation_time')
+			->where(['buyer_id' => Yii::$app->user->id, 'evaluation_status' => 1])
+			->joinWith('order o', false)
+			->orderBy(['evaluation_time' => SORT_DESC, 'order_id' => SORT_DESC]);
+
+		if($post->order_id) {
+			$query->andWhere(['o.order_id' => explode(',', $post->order_id)]);
+		}
+		if($post->order_sn) {
+			$query->andWhere(['o.order_sn' => explode(',', $post->order_sn)]);
+		}
+		
+		$page = Page::getPage($query->count(), $post->page_size, false, $post->page);
+		$list = $query->offset($page->offset)->limit($page->limit)->asArray()->all();
+		foreach($list as $key => $value)
+		{
+			$list[$key]['evaluation_time'] = Timezone::localDate('Y-m-d H:i:s', $value['evaluation_time']);
+			$list[$key]['reply_time'] = Timezone::localDate('Y-m-d H:i:s', $value['reply_time']);
+			$list[$key]['images'] = json_decode($value['images']);
+		}
+
+		return array($list, $page);
 	}
 
 	/**

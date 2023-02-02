@@ -118,7 +118,7 @@ return array(
 	'TRADE_SHIPPED'				=> '卖家已发货',
 	'TRADE_SUCCESS'				=> '交易完成',
 	'TRADE_CLOSED'				=> '交易关闭',
-	'TRADE_WAIT_ADMIN_VERIFY' 	=> '等待系统审核',
+	'TRADE_VERIFY' 				=> '等待平台审核',
 
 
 	/*针对退款的状态*/
@@ -141,7 +141,7 @@ return array(
 	'drop_fail'		=> '删除失败',
 	'express'		=> '快递',
 	'ems'	 		=> 'EMS',
-	'post'   		=> '平邮',
+	'post'   		=> '邮政',
 
 	'access_limit' => '您没有被授予相应的权限，无权访问',
 	'select_handle'		=> '选择操作',

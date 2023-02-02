@@ -47,7 +47,10 @@ class UserForm extends Model
 	{
 		return array_merge(
 			$this->getStatistics('buyer_id'),
-			['my_question' => GoodsQaModel::find()->where(['userid' => Yii::$app->user->id, 'if_new' => 1])->andWhere(['!=', 'reply_content', ''])->count()]
+			[
+				'evaluation' => OrderModel::find()->where(['buyer_id' => Yii::$app->user->id, 'status' => Def::ORDER_FINISHED, 'evaluation_status' => 0])->count(),
+				'question' => GoodsQaModel::find()->where(['userid' => Yii::$app->user->id, 'if_new' => 1])->andWhere(['!=', 'reply_content', ''])->count()
+			]
 		);
 	}
 	

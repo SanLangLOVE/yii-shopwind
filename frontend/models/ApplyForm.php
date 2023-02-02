@@ -82,6 +82,12 @@ class ApplyForm extends Model
 		} 
 		else 
 		{
+			// 如果是店铺已开通，则不允许编辑
+		    if($model->state == Def::STORE_OPEN) {
+		        $this->errors = Language::get('handle_invalid');
+				return false;
+		    }
+			
 			// 如果店铺被平台关闭，则不允许编辑
 			if($model->state == Def::STORE_CLOSED) {
 				$this->errors = Language::get('store_closed');

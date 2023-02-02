@@ -46,33 +46,34 @@ class ConnectController extends \common\controllers\BaseMallController
 
 	public function actionIndex()
 	{
-		if(Yii::$app->user->isGuest) {
+		if (Yii::$app->user->isGuest) {
 			Page::redirect(Yii::$app->request->url);
 			return false;
 		}
 
 		$connect = Plugin::getInstance('connect')->build();
 		$plugins = $connect->getList();
-		
+
 		$binds = array();
-		foreach($plugins as $key => $plugin)
-		{
-			
+		foreach ($plugins as $key => $plugin) {
+			if (!in_array($key, ['alipay', 'qq', 'weixin', 'xwb'])) {
+				continue;
+			}
 			$bind = BindModel::find()->select('enabled')->where(['userid' => Yii::$app->user->id, 'code' => $key])->one();
 			$binds[] = array('code' => $key, 'name' => $plugin['name'], 'enabled' => $bind->enabled ? 1 : 0);
 		}
 		$this->params['binds'] = $binds;
-		
+
 		// 当前位置
 		$this->params['_curlocal'] = Page::setLocal(Language::get('connect'), Url::toRoute('connect/index'), Language::get('connect_index'));
-		
+
 		// 当前用户中心菜单
 		$this->params['_usermenu'] = Page::setMenu('connect', 'connect_index');
-		
+
 		$this->params['page'] = Page::seo(['title' => Language::get('connect_index')]);
 		return $this->render('../connect.index.html', $this->params);
 	}
-	
+
 	public function actionQq()
 	{
 		$connect = Plugin::getInstance('connect')->build('qq');
@@ -84,121 +85,116 @@ class ConnectController extends \common\controllers\BaseMallController
 
 		$connect = Plugin::getInstance('connect')->build('qq', $post);
 		$connect->callback();
-		if(!$connect->userid) {
+		if (!$connect->userid) {
 			return Message::warning($connect->errors);
 		}
 
 		return $this->doLogin($connect->userid);
 	}
 
-    public function actionAlipay()
-    {
+	public function actionAlipay()
+	{
 		$connect = Plugin::getInstance('connect')->build('alipay');
 		$connect->login();
-    }
+	}
 	public function actionAlipaycallback()
 	{
 		$post = Basewind::trimAll(Yii::$app->request->get(), true);
 
 		$connect = Plugin::getInstance('connect')->build('alipay', $post);
 		$connect->callback();
-		if(!$connect->userid) {
+		if (!$connect->userid) {
 			return Message::warning($connect->errors);
 		}
-		
+
 		return $this->doLogin($connect->userid);
 	}
-	
+
 	public function actionWeixin()
-    {
-		$connect = Plugin::getInstance('connect')->build('weixin');
+	{
+		// 使用开放平台秘钥
+		$connect = Plugin::getInstance('connect')->build('weixinapp');
 		$connect->login();
-    }
+	}
 	public function actionWeixincallback()
 	{
 		$post = Basewind::trimAll(Yii::$app->request->get(), true);
 
-		$connect = Plugin::getInstance('connect')->build('weixin', $post);
+		$connect = Plugin::getInstance('connect')->build('weixinapp', $post);
 		$connect->callback();
-		if(!$connect->userid) {
+		if (!$connect->userid) {
 			return Message::warning($connect->errors);
 		}
 
 		return $this->doLogin($connect->userid);
 	}
-	
+
 	public function actionXwb()
-    {
+	{
 		$connect = Plugin::getInstance('connect')->build('xwb');
 		$connect->login();
-    }
+	}
 	public function actionXwbcallback()
 	{
 		$post = Basewind::trimAll(Yii::$app->request->get(), true);
 
 		$connect = Plugin::getInstance('connect')->build('xwb', $post);
 		$connect->callback();
-		if(!$connect->userid) {
+		if (!$connect->userid) {
 			return Message::warning($connect->errors);
 		}
-		
+
 		return $this->doLogin($connect->userid);
 	}
-	
+
 	public function actionBind()
 	{
 		$token = Basewind::trimAll(Yii::$app->request->get('token'), true);
 		$bind = Basewind::trimAll(json_decode(base64_decode($token), true), true);
-		
-		if(!isset($bind->unionid) || !$bind->unionid) {
+
+		if (!isset($bind->unionid) || !$bind->unionid) {
 			return Message::warning(Language::get('session_expire'));
 		}
 		// 进入绑定界面，10分钟有效期 
-		if(!isset($bind->expire_time) || ($bind->expire_time < Timezone::gmtime())) {
+		if (!isset($bind->expire_time) || ($bind->expire_time < Timezone::gmtime())) {
 			return Message::warning(Language::get('session_expire'));
 		}
-		
+
 		// 绑定当前登录的账户
-		if (!Yii::$app->user->isGuest)
-		{
+		if (!Yii::$app->user->isGuest) {
 			// 将绑定信息插入数据库
-			if(BindModel::bindUser($bind, Yii::$app->user->id) == false) {
+			if (BindModel::bindUser($bind, Yii::$app->user->id) == false) {
 				return Message::warning(Language::get('bind_fail'));
 			}
 
 			return Message::display(Language::get('bind_ok'), ['connect/index']);
 		}
 		// 绑定指定的账户（只考虑手机绑定，不考虑邮箱绑定）
-		else
-		{
-			if(!Yii::$app->request->isPost)
-			{
+		else {
+			if (!Yii::$app->request->isPost) {
 				$this->params['bind'] = ArrayHelper::toArray($bind);
-				
+
 				$this->params['page'] = Page::seo(['title' => Language::get('connect_bind')]);
 				return $this->render('../connect.bind.html', $this->params);
-			}
-			else
-			{
+			} else {
 				$post = Basewind::trimAll(Yii::$app->request->post(), true);
-				
-				if(!Basewind::isPhone($post->phone_mob)) {
+
+				if (!Basewind::isPhone($post->phone_mob)) {
 					return Message::warning(Language::get('phone_mob_invalid'));
 				}
 
-				if(Yii::$app->session->get('phone_code') != md5($post->phone_mob.$post->code)) {
+				if (Yii::$app->session->get('phone_code') != md5($post->phone_mob . $post->code)) {
 					return Message::warning(Language::get('phone_code_check_failed'));
-				} elseif(Yii::$app->session->get('last_send_time_phone_code') + 120 < Timezone::gmtime()) {
+				} elseif (Yii::$app->session->get('last_send_time_phone_code') + 120 < Timezone::gmtime()) {
 					return Message::warning(Language::get('phone_code_check_failed'));
 				}
-				
+
 				// 检查手机号是否被注册过（如注册过，绑定该用户）
 				// 如果是绑定新用户，则执行注册 
-				if(!($user = UserModel::find()->where(['phone_mob' => $post->phone_mob])->one())) 
-				{
+				if (!($user = UserModel::find()->where(['phone_mob' => $post->phone_mob])->one())) {
 					do {
 						$model = new \frontend\models\UserRegisterForm();
-						if($bind->nickname) {
+						if ($bind->nickname) {
 							$model->username = Basewind::checkUser($bind->nickname) ? $bind->nickname : UserModel::generateName($bind->nickname);
 						} else $model->username = UserModel::generateName($bind->code);
 						$model->password  = mt_rand(1000, 9999);
@@ -208,65 +204,65 @@ class ConnectController extends \common\controllers\BaseMallController
 				}
 
 				// 将绑定信息插入数据库
-				if(BindModel::bindUser($bind, $user->userid) == false) {
+				if (BindModel::bindUser($bind, $user->userid) == false) {
 					return Message::warning(Language::get('bind_fail'));
 				}
-				
+
 				// 退出绑定模式 
 				Yii::$app->session->remove('phone_code');
 				Yii::$app->session->remove('last_send_time_phone_code');
-				
+
 				if (!Yii::$app->getUser()->login($user)) {
-         			return Message::display(Language::get('login_fail'));
-        		}
+					return Message::display(Language::get('login_fail'));
+				}
 				return Message::display(Language::get('login_successed'), ['user/index']);
 			}
 		}
 	}
-	
+
 	public function actionRelieve()
 	{
-		if(Yii::$app->user->isGuest) {
+		if (Yii::$app->user->isGuest) {
 			return Message::warning(Language::get('login_please'));
 		}
-		
-		$post = Basewind::trimAll(Yii::$app->request->get(),true);
-		if(!in_array($post->code, array('qq','weixin','alipay','xwb'))) {
+
+		$post = Basewind::trimAll(Yii::$app->request->get(), true);
+		if (!in_array($post->code, array('qq', 'weixin', 'alipay', 'xwb'))) {
 			return Message::warning(Language::get('unbind_fail'));
 		}
-		if(!BindModel::updateAll(['enabled' => 0], ['userid' => Yii::$app->user->id, 'code' => $post->code])) {
+		if (!BindModel::updateAll(['enabled' => 0], ['userid' => Yii::$app->user->id, 'code' => $post->code])) {
 			return Message::warning(Language::get('unbind_fail'));
 		}
 		return Message::display(Language::get('unbind_ok'));
 	}
-	
+
 	protected function doLogin($userid, $redirect = null)
 	{
 		$identity = UserModel::findOne($userid);
 
-		if($identity->locked) {
+		if ($identity->locked) {
 			return Message::warning(Language::get('userlocked'));
 		}
 
 		// 登录用户
-		if(!Yii::$app->user->login($identity)) {
+		if (!Yii::$app->user->login($identity)) {
 			return Message::warning(Language::get('login_fail'));
 		}
 		UserModel::afterLogin($identity);
-	
+
 		return Message::display(Language::get('login_successed'), $redirect ? $redirect : ['user/index']);
 	}
 
 	/* 三级菜单 */
-    public function getUserSubmenu()
-    {
-        $submenus =  array(
-            array(
-                'name'  => 'connect_index',
-                'url'   => Url::toRoute('connect/index'),
-            ),
-        );
+	public function getUserSubmenu()
+	{
+		$submenus =  array(
+			array(
+				'name'  => 'connect_index',
+				'url'   => Url::toRoute('connect/index'),
+			),
+		);
 
-        return $submenus;
-    }
+		return $submenus;
+	}
 }

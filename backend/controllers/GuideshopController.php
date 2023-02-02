@@ -16,9 +16,12 @@ use yii\helpers\Url;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 
+use common\models\OrderModel;
+use common\models\DepositTradeModel;
 use common\models\GuideshopModel;
 use common\models\DepositSettingModel;
 use common\models\GcategoryModel;
+use common\models\UserModel;
 
 use common\library\Basewind;
 use common\library\Language;
@@ -66,10 +69,53 @@ class GuideshopController extends \common\controllers\BaseAdminController
 			
 			foreach ($list as $key => $value)
 			{
+				if($username = UserModel::find()->select('username')->where(['userid' => $value['userid']])->scalar()){
+			        $list[$key]['username'] = $username;
+			    }
 				$list[$key]['guider_rate'] = DepositSettingModel::getDepositSetting($value['userid'], 'guider_rate');
 				$list[$key]['address'] 	= $value['region_name'].$value['address'];
 				$list[$key]['status'] 	= $this->getStatus($value['status']);
 				$list[$key]['created'] 	= Timezone::localDate('Y-m-d', $value['created']);
+			}
+
+			return Json::encode(['code' => 0, 'msg' => '', 'count' => $query->count(), 'data' => $list]);
+		}
+	}
+
+	/**
+	 * 门店自提订单
+	 */
+	public function actionOrder()
+	{
+		$post = Basewind::trimAll(Yii::$app->request->get(), true, ['limit', 'page', 'status']);
+		
+		if(!Yii::$app->request->isAjax) 
+		{
+			$this->params['filtered'] = $this->getOrderConditions($post);
+			$this->params['search_options'] = $this->getSearchOption();
+			$this->params['status_list'] = $this->getOrderStatus();
+			
+			$this->params['_foot_tags'] = Resource::import([
+				'script' => 'jquery.ui/jquery.ui.js,jquery.ui/i18n/' . Yii::$app->language . '.js',
+            	'style'=> 'jquery.ui/themes/smoothness/jquery.ui.css'
+			]);
+			$this->params['page'] = Page::seo(['title' => Language::get('order_list')]);
+			return $this->render('../guideshop.order.html', $this->params);
+		}
+		else
+		{
+			$query = OrderModel::find()->select('order_id,order_sn,buyer_name,seller_name as store_name,order_amount,payment_name,status,add_time,pay_time,finished_time');
+			$query = $this->getOrderConditions($post, $query)->andWhere(['otype' => 'guidebuy'])->orderBy(['order_id' => SORT_DESC]);
+			
+			$page = Page::getPage($query->count(), $post->limit ? $post->limit : 10);
+			$list = $query->offset($page->offset)->limit($page->limit)->asArray()->all();
+			foreach ($list as $key => $value)
+			{
+				$list[$key]['tradeNo'] = DepositTradeModel::find()->select('tradeNo')->where(['bizOrderId' => $value['order_sn']])->scalar();
+				$list[$key]['add_time'] = Timezone::localDate('Y-m-d H:i:s', $value['add_time']);
+				$list[$key]['pay_time'] = Timezone::localDate('Y-m-d H:i:s', $value['pay_time']);
+				$list[$key]['finished_time'] = Timezone::localDate('Y-m-d H:i:s', $value['finished_time']);
+				$list[$key]['status'] = Def::getOrderStatus($value['status']);
 			}
 
 			return Json::encode(['code' => 0, 'msg' => '', 'count' => $query->count(), 'data' => $list]);
@@ -256,6 +302,31 @@ class GuideshopController extends \common\controllers\BaseAdminController
 		}
 		return $result;		
 	}
+
+	private function getOrderStatus($status = null)
+	{
+		$result = array(
+			Def::ORDER_PENDING  => Language::get('order_pending'),
+            Def::ORDER_PICKING  => Language::get('order_picking'),
+			Def::ORDER_DELIVERED=> Language::get('order_delivered'),
+			Def::ORDER_FINISHED => Language::get('order_finished'),
+            Def::ORDER_CANCELED => Language::get('order_canceled'),
+        );
+		if($status !== null) {
+			return isset($result[$status]) ? $result[$status] : '';
+		}
+		return $result;		
+	}
+
+	private function getSearchOption()
+	{
+		return array(
+            'seller_name'	=> Language::get('store_name'),
+            'buyer_name' 	=> Language::get('buyer_name'),
+            'payment_name' 	=> Language::get('payment_name'),
+            'order_sn' 		=> Language::get('order_sn'),
+		);
+	}
 	
 	private function getConditions($post, $query = null)
 	{
@@ -283,6 +354,49 @@ class GuideshopController extends \common\controllers\BaseAdminController
 			$query->andWhere(['in', 'status', [Def::STORE_OPEN, Def::STORE_CLOSED]]);
 		}
 
+		return $query;
+	}
+
+	private function getOrderConditions($post, $query = null)
+	{
+		if($query === null) {
+			foreach(array_keys(ArrayHelper::toArray($post)) as $field) {
+				if(in_array($field, ['search_name', 'status', 'add_time_from', 'add_time_to', 'order_amount_from', 'order_amount_to'])) {
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		if($post->field && $post->search_name && in_array($post->field, array_keys($this->getSearchOption()))) {
+			$query->andWhere([$post->field => $post->search_name]);
+		}
+		if($post->status) {
+			$query->andWhere(['status' => $post->status]);
+		}
+		if($post->add_time_from) $post->add_time_from = Timezone::gmstr2time($post->add_time_from);
+		if($post->add_time_to) $post->add_time_to = Timezone::gmstr2time_end($post->add_time_to);
+		if($post->add_time_from && $post->add_time_to) {
+			$query->andWhere(['and', ['>=', 'add_time', $post->add_time_from], ['<=', 'add_time', $post->add_time_to]]);
+		}
+		if($post->add_time_from && (!$post->add_time_to || ($post->add_time_to <= $post->add_time_from))) {
+			$query->andWhere(['>=', 'add_time', $post->add_time_from]);
+		}
+		if(!$post->add_time_from && ($post->add_time_to && ($post->add_time_to > Timezone::gmtime()))) {
+			$query->andWhere(['<=', 'add_time', $post->add_time_to]);
+		}
+		
+		if($post->order_amount_from) $post->order_amount_from = floatval($post->order_amount_from);
+		if($post->order_amount_to) $post->order_amount_to = floatval($post->order_amount_to);
+		if($post->order_amount_from && $post->order_amount_to) {
+			$query->andWhere(['and', ['>=', 'order_amount', $post->order_amount_from], ['<=', 'order_amount', $post->order_amount_to]]);
+		}
+		if($post->order_amount_from && (!$post->order_amount_to || ($post->order_amount_to < 0))) {
+			$query->andWhere(['>=', 'order_amount', $post->order_amount_from]);
+		}
+		if(!$post->order_amount_from && ($post->order_amount_to > 0)) {
+			$query->andWhere(['<=', 'order_amount', $post->order_amount_to]);
+		}
 		return $query;
 	}
 }

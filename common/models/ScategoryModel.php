@@ -105,4 +105,44 @@ class ScategoryModel extends ActiveRecord
 		}
 		return $data;
 	}
+
+	/**
+     * 取得某分类的祖先分类（包括自身，按层级排序）
+     *
+     * @param   int  $id       分类id
+	 * @param 	bool $shown    只取要显示的分类
+     * @param   bool $cached   是否取缓存
+     * @return  array(
+     *              array('cate_id' => 1, 'cate_name' => '数码产品'),
+     *              array('cate_id' => 2, 'cate_name' => '手机'),
+     *              ...
+     *          )
+     */
+    public static function getAncestor($id, $shown = true, $cached = true)
+	{
+		$cache = Yii::$app->cache;
+		$cachekey = md5((__METHOD__).var_export(func_get_args(), true));
+		$data = $cache->get($cachekey);
+		if($data === false || !$cached) 
+		{
+			$data = array();
+			$query = parent::find()->select('cate_id,cate_name,parent_id')->where(['cate_id' => $id]);
+			if($shown) $query->andWhere(['if_show' => 1]);
+			$scategory = $query->asArray()->one();
+			if($scategory) {
+				$data[] = $scategory;
+			}
+			
+			while($scategory && ($scategory['parent_id'] > 0)) 
+			{
+				$query = parent::find()->select('cate_id,cate_name,parent_id')->where(['cate_id' => $scategory['parent_id']]);
+				if($shown) $query->andWhere(['if_show' => 1]);
+				$scategory = $query->asArray()->one();
+					
+				$data[] = $scategory;
+			}
+			$cache->set($cachekey, $data, 3600);
+		}
+		return array_reverse($data);
+	}
 }

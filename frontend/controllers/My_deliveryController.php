@@ -84,7 +84,7 @@ class My_deliveryController extends \common\controllers\BaseSellerController
 		}
 		else
 		{
-			$post = Basewind::trimAll(Yii::$app->request->post());
+			$post = Basewind::trimAll(Yii::$app->request->post(), true);
 			
 			$model = new \frontend\models\My_deliveryForm(['store_id' => $this->visitor['store_id']]);
 			if(!$model->save($post, true)) {
@@ -123,7 +123,7 @@ class My_deliveryController extends \common\controllers\BaseSellerController
 		}
 		else 
 		{
-			$post = Basewind::trimAll(Yii::$app->request->post());
+			$post = Basewind::trimAll(Yii::$app->request->post(), true);
 			
 			$model = new \frontend\models\My_deliveryForm(['store_id' => $this->visitor['store_id'], 'id' => $template_id]);
 			if(!$model->save($post, true)) {

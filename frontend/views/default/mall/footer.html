@@ -69,16 +69,10 @@
   <div class="foot-fixed J_FootFixed">
     <div class="foot-fixed-box"> 
 	    <a class="cart j-icon J_F_CardItem" href="{url route='cart/index'}"><i></i><em class="count-cart J_C_T_GoodsKinds">{$carts_top.kinds|default:0}</em></a>
-      <a class="qq j-icon J_Icon"><i>qq</i></a> 
+      <a class="qq j-icon" href="{url route='webim/index'}" target="_blank"><i>qq</i>{if $visitor.unread gt 0}<em>{$visitor.unread}</em>{/if}</a> 
       <a class="tel j-icon J_Icon"><i>tel</i></a> 
       <a class="code j-icon J_Icon"><i>code</i></a> 
-      <a class="backtop j-icon J_Icon"><i>back_top</i></a>
-      <div class="tencent j-tencent j-box J_Box"> 
-        <a href="tencent://message/?uin=544500267&Site={$siteUrl}&Menu=yes"><i class="tencent-i">tencent</i><b class="tencent-b"><span class="tencent-span"><img style="overflow: hidden; width: 39px; height: 45px; left: 3px;" class="tencent-qq" src="{res file='images/qq-tencent.png'}" alt=""></span></b>
-          <p class="tencent-p">在线客服<br>
-          点击交谈</p>
-        </a>
-      </div>
+      <a class="backtop j-icon"><i>back_top</i></a>
       <div class="tel j-box J_Box"><strong>服务热线：</strong>
         <p>010-555888</p>
         <i></i>
@@ -92,7 +86,7 @@
   <script type="text/javascript">
   	$(function(){
 		$(".J_FootFixed").find(".J_Icon").hover(function(){  
-        	$(".J_FootFixed").find(".J_Box").eq($(this).index()-1).show().siblings(".J_Box").hide();
+        	$(".J_FootFixed").find(".J_Box").eq($(this).index()-2).show().siblings(".J_Box").hide();
 		});
 		$(".J_FootFixed").hover(function(){
 		}, function(){

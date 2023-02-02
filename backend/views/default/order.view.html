@@ -38,6 +38,30 @@
             </dd>
           </dl>
         </div>
+        <!--{if $guideshop}-->
+        <div class="order_form mt20">
+          <dl>
+            <dt><span class="bold">门店自提点</span></dt>
+            <dd>
+              <div class="webkit-box">
+                <p>
+                  <img width="60" height="60" src="{$guideshop.banner|url_format}" />
+                </p>
+                <ul class="clearfix ml20" style="width: 87.5%;">
+                  <li>门店名称{$lang.colon}{$guideshop.name|escape}</li>
+                  <li>团长姓名{$lang.colon}{$guideshop.owner|escape}</li>
+                  <li>门店地址{$lang.colon}{$guideshop.region_name|escape} {$guideshop.address|escape}</li>
+                  <li>{$lang.phone_mob}{$lang.colon}{$guideshop.phone_mob|escape}</li>
+                </ul>
+              </div>
+              <div class="notice-word mt10">
+                <p class="f-13 yellow">平台将货物配送到该自提网点后，由团长来进行拣货分发</p>
+              </div>
+            </dd>
+          </dl>
+        </div>
+        <!--{/if}-->
+
         <div class="order_form mt20">
           <dl>
             <dt><span class="bold">{$lang.consignee_info}</span></dt>
@@ -65,8 +89,8 @@
                     target="_blank"><img width="90" height="90" alt="{$lang.goods_pic}"
                       src="{$goods.goods_image|url_format}" /></a></div>
                 <div class="float-left ml10 desc"> <a
-                    href="{url route='goods/index' id=$goods.goods_id baseUrl=$homeUrl}"
-                    target="_blank" class="block mb10">{$goods.goods_name|escape}</a>
+                    href="{url route='goods/index' id=$goods.goods_id baseUrl=$homeUrl}" target="_blank"
+                    class="block mb10">{$goods.goods_name|escape}</a>
                   {$goods.specification|escape}
                   <p>{$lang.price}{$lang.colon}<span class="red">{$goods.price|price_format}</span></p>
                   <p>{$lang.quantity}{$lang.colon}{$goods.quantity}</p>

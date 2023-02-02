@@ -39,7 +39,7 @@ class Seller_mealForm extends Model
 	{
 		$result = array();
 		
-		if(($message = Promotool::getInstance('meal')->build(['store_id' => $this->store_id])->checkAvailable()) !== true) {
+		if(($message = Promotool::getInstance('mealbuy')->build(['store_id' => $this->store_id])->checkAvailable()) !== true) {
 			$this->errors = $message;
 			return false;
 		}
@@ -85,7 +85,7 @@ class Seller_mealForm extends Model
 		}
 		$post->price = round($post->price, 2);
 		if($post->price - $allPrice > 0) {
-			$this->errors = Language::get('meal_price_error') . Language::get('colon') . $allPrice . Language::get('yuan');
+			$this->errors = sprintf(Language::get('meal_price_error'), $allPrice);
 			return false;
 		}
 		
@@ -110,13 +110,14 @@ class Seller_mealForm extends Model
 		$model->price = $post->price;
 		$model->keyword = $this->getKeywords($selected);
 		$model->description = $post->description ? $post->description : '';
-		$model->status = 1;
+		$model->status = isset($post->status) ? intval($post->status) : 1;
 
 		if(!$model->save()) {
 			$this->errors = $model->errors;
 			return false;
 		}
 
+		$this->meal_id = $model->meal_id;
 		MealGoodsModel::deleteAll(['meal_id' => $model->meal_id]);
 		foreach($selected as $goods_id) {
 			$query = new MealGoodsModel();
@@ -125,6 +126,7 @@ class Seller_mealForm extends Model
 			$query->save();
 		}
 		
+		// for PC
 		if ($post->desc_file_id) {
 			UploadedFileModel::updateAll(['item_id' => $model->meal_id], ['in', 'file_id', array_unique(ArrayHelper::toArray($post->desc_file_id))]); 
   		}

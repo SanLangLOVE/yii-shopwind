@@ -149,6 +149,7 @@ class GcategoryModel extends ActiveRecord
      * 取得某分类的祖先分类（包括自身，按层级排序）
      *
      * @param   int  $id       分类id
+	 * @param 	int  $store_id  店铺编号
 	 * @param 	bool $shown    只取要显示的分类
      * @param   bool $cached   是否取缓存
      * @return  array(

@@ -99,8 +99,6 @@ class Kuaidi100 extends BaseExpress
 	/* 企业版 返回JSON 稳定 */
 	private function queryPoll($post = null, $order = null)
 	{
-		// $this->gateway = 'http://poll.kuaidi100.com/poll/query.do';
-		
 		$params['customer'] = $this->config['customer'];
 		$params['param'] 	= json_encode(['com' => $order->express_comkey, 'num' => $order->express_no]);
 		$params['sign'] 	= strtoupper(md5($params['param'] . $this->config['key'] . $this->config['customer']));
@@ -148,9 +146,12 @@ class Kuaidi100 extends BaseExpress
 		$params['nu']	= $order->express_no;
 		
 		$result = Basewind::curl($this->gateway.'?'. http_build_query($params));
-		//$result = json_decode($result, true);
+		$array = json_decode($result, true);
+		if(isset($array['status'])) {
+			$result = $array;
+		}
 		
-		return $result ? ['url' => $result] : array();
+		return is_string($result) ? ['url' => $result] : $result;
 	}
 
 	/**

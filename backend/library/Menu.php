@@ -169,6 +169,11 @@ class Menu
 				'text'      => Language::get('guideshop'),
 				'ico' => 'icon-qijiandian',
 				'children'  => array(
+					'order' => array(
+						'text'  => Language::get('guideshop_order'),
+						'url'   => Url::toRoute('guideshop/order'),
+						'priv'  => ['key' => 'guideshop|all']
+					),
 					'list' => array(
 						'text'  => Language::get('guideshop_list'),
 						'url'   => Url::toRoute('guideshop/index'),

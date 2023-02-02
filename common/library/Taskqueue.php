@@ -57,7 +57,8 @@ class Taskqueue
 		$today = Timezone::gmtime();
 		
         // 默认2天
-        $interval = 2 * 24 * 3600;
+		$closeday = intval(Yii::$app->params['autocloseday']);
+        $interval = ($closeday > 0 ? $closeday : 2) * 24 * 3600;
 		
 		// 每次仅处理2条记录，注意：处理太多会影响性能
 		$list = OrderModel::find()->where("add_time + {$interval} < {$today}")->andWhere(['in', 'status', [Def::ORDER_SUBMITTED, Def::ORDER_PENDING]])->indexBy('order_id')->orderBy(['order_id' => SORT_ASC])->limit(2)->asArray()->all();
@@ -192,7 +193,10 @@ class Taskqueue
 	private static function getConditions($query = null, $otype = 'normal')
 	{
 		$today = Timezone::gmtime();
-		$interval = ($otype == 'guidebuy') ? 2 * 24 * 3600 : 8 * 24 * 3600;
+		$shipday = intval(Yii::$app->params['autoshipday']);
+		$deliveryday = intval(Yii::$app->params['autodeliveryday']);
+
+		$interval = ($otype == 'guidebuy') ? ($deliveryday > 0 ? $deliveryday : 2) * 24 * 3600 : ($shipday > 0 ? $shipday : 8) * 24 * 3600;
 		$status = ($otype == 'guidebuy') ? Def::ORDER_DELIVERED : Def::ORDER_SHIPPED;
 		$query->andWhere("ship_time + {$interval} < {$today}")->andWhere(['o.status' => $status]);
 

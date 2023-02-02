@@ -39,7 +39,7 @@
 
 .foot-fixed { position: fixed; z-index: 990; right: 10px; bottom: 110px; width: 80px; height: 204px; }
 .foot-fixed .foot-fixed-box { position: relative; float: right; }
-.foot-fixed .foot-fixed-box .j-icon {opacity: 0.8; filter: alpha(opacity=80); display: block; width: 50px; height: 50px; background-color: #222; margin-bottom:1px; cursor:default; }
+.foot-fixed .foot-fixed-box .j-icon {opacity: 0.8; filter: alpha(opacity=80); display: block; width: 50px; height: 50px; background-color: #222; margin-bottom:1px; }
 .foot-fixed .foot-fixed-box .j-icon i{display: block; float: left; width: 25px; height:25px; margin-left: 15px; margin-top: 15px; background: url(../images/suspension-bg.png) no-repeat center center; text-indent: -9999px;}
 .foot-fixed .foot-fixed-box .j-icon.backtop { background-color: #000; cursor:pointer; border-bottom:0;}
 	
@@ -49,9 +49,9 @@
 .foot-fixed .foot-fixed-box .j-icon.code i { background-position: 0 -25px; }
 .foot-fixed .foot-fixed-box .j-icon.backtop i { background-position: -28px -25px; }
 
-.foot-fixed .foot-fixed-box .j-icon.cart{position:relative; cursor:pointer;}
+.foot-fixed .foot-fixed-box .j-icon{position:relative; cursor:pointer;}
 .foot-fixed .foot-fixed-box .j-icon.cart i { background:url(../images/add_cart.png) -2px center no-repeat; background-size:100%; }
-.foot-fixed .foot-fixed-box .j-icon.cart em{position:absolute; top:2px; right:2px; border-radius:10px; background:red; text-align:center;color:#fff; padding:0px 5px;}
+.foot-fixed .foot-fixed-box .j-icon em{position:absolute; top:2px; right:2px; border-radius:10px; background:red; text-align:center;color:#fff; padding:0px 5px;}
 
 .foot-fixed .foot-fixed-box .j-icon:hover{ opacity: 0.5; filter: alpha(opacity=50);}
 .foot-fixed .foot-fixed-box .j-icon.backtop:hover { background-color: #E4393C; }

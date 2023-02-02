@@ -32,7 +32,7 @@
 					</div>
 					<!--{/foreach}-->
                     
-					<div class="transportation">{$lang.shipping_fee}&nbsp;:&nbsp;<span>{$order.ordexExtm.shipping_fee|price_format}<strong>({$order.orderExtm.shipping_name|escape})</strong></span>{$lang.preference}&nbsp;:&nbsp;<span>{$order.discount|price_format}</span>{$lang.order_amount}&nbsp;:&nbsp;<b>{$order.order_amount|price_format}</b> </div>
+					<div class="transportation">{$lang.shipping_fee}&nbsp;:&nbsp;<span>{$order.orderExtm.shipping_fee|price_format}<strong>({$order.orderExtm.shipping_name|escape})</strong></span>{$lang.preference}&nbsp;:&nbsp;<span>{$order.discount|price_format}</span>{$lang.order_amount}&nbsp;:&nbsp;<b>{$order.order_amount|price_format}</b> </div>
 					<ul class="order_detail_list">
 						<!--{if $order.payment_code}-->
 						<li>{$lang.payment_name}&nbsp;:&nbsp;{$order.payment_name|escape}</li>

@@ -15,7 +15,6 @@ use Yii;
 use yii\helpers\ArrayHelper;
 
 use common\models\DepositTradeModel;
-use common\models\RefundModel;
 
 use common\library\Basewind;
 use common\library\Language;

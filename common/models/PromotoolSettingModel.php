@@ -39,8 +39,6 @@ class PromotoolSettingModel extends ActiveRecord
 	/* 获取某个卖家设置的营销工具详细信息，并格式化配置项 */
 	public static function getInfo($appid, $store_id = 0, $params = array(), $format = true)
 	{
-		$result = array();
-		
 		if($appid && $store_id)
 		{
 			$query = parent::find()->where(['appid' => $appid, 'store_id' => $store_id])->orderBy(['psid' => SORT_DESC]);
@@ -51,7 +49,7 @@ class PromotoolSettingModel extends ActiveRecord
 				$result->rules = unserialize($result->rules);
 			}
 		}
-		return ArrayHelper::toArray($result);
+		return $result ? ArrayHelper::toArray($result) : [];
 	}
 	
 	/* 获取某个卖家设置的营销工具列表，并格式化配置项 */

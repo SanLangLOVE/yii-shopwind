@@ -50,7 +50,7 @@ class Seller_mealController extends \common\controllers\BaseSellerController
     public function actionIndex()
     {
 		$page = array('pageSize' => 15);
-		$mealTool = Promotool::getInstance('meal')->build(['store_id' => $this->visitor['store_id']]);
+		$mealTool = Promotool::getInstance('mealbuy')->build(['store_id' => $this->visitor['store_id']]);
 		if(($message = $mealTool->checkAvailable()) !== true) {
 			$this->params['tooldisabled'] = $message;
 		}
@@ -74,7 +74,7 @@ class Seller_mealController extends \common\controllers\BaseSellerController
 		{
 			$this->params['store_id'] = $this->visitor['store_id'];
 			
-			if(($message = Promotool::getInstance('meal')->build(['store_id' => $this->visitor['store_id']])->checkAvailable()) !== true) {
+			if(($message = Promotool::getInstance('mealbuy')->build(['store_id' => $this->visitor['store_id']])->checkAvailable()) !== true) {
 				$this->params['tooldisabled'] = $message;
 			}
 			
@@ -129,7 +129,7 @@ class Seller_mealController extends \common\controllers\BaseSellerController
 		{
 			$this->params['store_id'] = $this->visitor['store_id'];
 			
-			if(($message = Promotool::getInstance('meal')->build(['store_id' => $this->visitor['store_id']])->checkAvailable()) !== true) {
+			if(($message = Promotool::getInstance('mealbuy')->build(['store_id' => $this->visitor['store_id']])->checkAvailable()) !== true) {
 				$this->params['tooldisabled'] = $message;
 			}
 			

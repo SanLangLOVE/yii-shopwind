@@ -183,20 +183,20 @@
                       <dt class="float-left">{$prop.name}{$lang.colon}</dt>
                       <dd class="float-left">
                         <!--{if $prop.ptype eq 'checkbox' || $prop.ptype eq 'radio'}-->
-                        {foreach from=$prop.value item=item}
+                        {foreach from=$prop.values item=item}
                         <label>
                           <input type="{$prop.ptype}" name="props[{$prop.pid}][]" value="{$item.pid}:{$item.vid}" {if
                             $item.selected} checked="checked" {/if} />
                           {if $prop.is_color}<i {if $item.color}style="background:{$item.color}" {else}class="duocai"
                             {/if}></i>{/if}
-                          {$item.pvalue} </label>
+                          {$item.value} </label>
                         {/foreach}
                         <!--{else}-->
                         <select name="props[{$prop.pid}][]">
                           <option value=""></option>
-                          {foreach from=$prop.value item=item}
+                          {foreach from=$prop.values item=item}
                           <option value="{$item.pid}:{$item.vid}" {if $item.selected} selected="selected" {/if}>
-                            {$item.pvalue}</option>
+                            {$item.value}</option>
                           {/foreach}
                         </select>
                         <!--{/if}-->
@@ -221,6 +221,12 @@
                       {/if}>{$item.brand_name|escape}</option>
                     <!--{/foreach}-->
                   </select>
+                </div>
+              </li>
+              <li class="subbox clearfix">
+                <label class="subbox-title">市场价格：</label>
+                <div class="subbox-body">
+                  <input name="mkprice" value="{$goods.mkprice}" type="text" class="text width_short" />
                 </div>
               </li>
               <li class="subbox clearfix" ectype="no_spec">

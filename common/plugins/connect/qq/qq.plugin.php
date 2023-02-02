@@ -71,7 +71,7 @@ class Qq extends BaseConnect
 
 	public function callback($autobind = false)
 	{
-		$response = $this->params->unionid ? $this->params : $this->getAccessToken();
+		$response = $this->getAccessToken();
 		if(!$response) {
 			return false;
 		}
@@ -96,10 +96,15 @@ class Qq extends BaseConnect
 	}
 
 	/**
-	 * 通过CODE获取用户信息
+	 * 通过CODE获取用户唯一标识
 	 */
 	public function getAccessToken()
 	{
+		// APP
+		if($this->params->unionid) {
+			return $this->params;
+		}
+
 		$client = $this->getClient();
 		if(($response = $client->getAccessToken($this->params->code)) == false || !$response->access_token) {
 			$this->errors = $client->errors ? $client->errors : Language::get('get_access_token_fail');

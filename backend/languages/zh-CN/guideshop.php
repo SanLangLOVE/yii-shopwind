@@ -24,5 +24,13 @@ return array(
 	'note_guider_rate' => '团长提成比率，请填写小数，如：0.005，保留小数点后3位。',
 	'gcategory_allow'  => '支持门店自提的一级类目',
 	'note_gcategory_allow' => '如果不设置该项，则全站商品将进入社区团购频道，以自提形式配送。建议您单独设置一个类目作为社区团购的商品源。',
-	'number_error' 	=> '数字不合理'
+	'number_error' 	=> '数字不合理',
+	'search_status' => '订单状态',
+    'add_time_from' => '下单时间从',
+    'add_time_to' => '至',
+    'order_amount_from' => '订单金额从',
+    'order_amount_to' => '至',
+	'buyer_name'  => '买家名称',
+    'payment_name'  => '支付方式',
+    'order_sn'  => '订单编号',
 );

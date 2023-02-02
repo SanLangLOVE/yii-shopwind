@@ -18,7 +18,6 @@ use common\library\Language;
 
 use common\plugins\BaseConnect;
 use common\plugins\connect\xwb\SDK;
-use common\plugins\connect\xwb\lib\SaeTOAuthV2;
 
 /**
  * @Id xwb.plugin.php 2018.6.5 $
@@ -72,7 +71,7 @@ class Xwb extends BaseConnect
 
 	public function callback($autobind = false)
 	{
-		$response = $this->params->unionid ? $this->params : $this->getAccessToken();
+		$response = $this->getAccessToken();
 		if(!$response) {
 			return false;
 		}
@@ -97,10 +96,15 @@ class Xwb extends BaseConnect
 	}
 
 	/**
-	 * 通过CODE获取用户信息
+	 * 通过CODE获取用户唯一标识
 	 */
 	public function getAccessToken()
 	{
+		// APP
+		if($this->params->unionid) {
+			return $this->params;
+		}
+		
 		if((($response = $this->getClient()->getAccessToken($this->params->code)) == false) || !$response->access_token) {
 			$this->errors = Language::get('get_access_token_fail');
 			return false;
@@ -124,7 +128,7 @@ class Xwb extends BaseConnect
 	
 	public function getReturnUrl()
 	{
-		return urlencode(Url::toRoute(['connect/xwbcallback'], true));
+		return Url::toRoute(['connect/xwbcallback'], true);
 	}
 
 	/**

@@ -96,10 +96,16 @@ class WholesaleController extends \common\controllers\BaseSellerController
 		}
 		else
 		{
-			$post = Basewind::trimAll(Yii::$app->request->post(), true);
+			$post = Basewind::trimAll(Yii::$app->request->post());
+
+			$rules = [];
+			foreach($post['rules']['quantity'] as  $key => $value) {
+				$rules[$key] = ['quantity' => $value, 'price' => $post['rules']['price'][$key]];
+			}
+			$post['rules'] = $rules;
 			
 			$model = new \frontend\models\WholesaleForm(['store_id' => $this->visitor['store_id']]);
-			if(!$model->save($post, true)) {
+			if(!$model->save(Basewind::trimAll($post, true), true)) {
 				return Message::warning($model->errors);
 			}
 			
@@ -139,10 +145,16 @@ class WholesaleController extends \common\controllers\BaseSellerController
 		}
 		else
 		{
-			$post = Basewind::trimAll(Yii::$app->request->post(), true);
-	
+			$post = Basewind::trimAll(Yii::$app->request->post());
+
+			$rules = [];
+			foreach($post['rules']['quantity'] as  $key => $value) {
+				$rules[$key] = ['quantity' => $value, 'price' => $post['rules']['price'][$key]];
+			}
+			$post['rules'] = $rules;
+
 			$model = new \frontend\models\WholesaleForm(['store_id' => $this->visitor['store_id']]);
-			if(!$model->save($post, true)) {
+			if(!$model->save(Basewind::trimAll($post, true), true)) {
 				return Message::warning($model->errors);
 			}
 
@@ -167,14 +179,14 @@ class WholesaleController extends \common\controllers\BaseSellerController
 
 	public function actionClosed()
     {
-		$post = Basewind::trimAll(Yii::$app->request->get(), true, ['goods_id', 'closed']);
+		$post = Basewind::trimAll(Yii::$app->request->get(), true, ['goods_id', 'status']);
 
 		if(!$post->goods_id) {
 			return Message::warning(Language::get('no_such_item'));
 		}
 		
-		WholesaleModel::updateAll(['closed' => $post->closed ? 0 : 1], ['goods_id' => $post->goods_id, 'store_id' => $this->visitor['store_id']]);
-        return Message::display($post->closed ? Language::get('start_ok') : Language::get('closed_ok'));
+		WholesaleModel::updateAll(['status' => $post->status ? 0 : 1], ['goods_id' => $post->goods_id, 'store_id' => $this->visitor['store_id']]);
+        return Message::display($post->status ? Language::get('closed_ok') : Language::get('start_ok'));
     }
 	
 	public function actionQuery() 

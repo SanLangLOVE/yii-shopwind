@@ -147,7 +147,7 @@ class DefaultController extends \common\controllers\BaseAdminController
     {
         return array(
 			'refunds' => RefundModel::find()->where(['not in', 'status', ['CLOSED', 'SUCCESS']])->count('refund_id'),
-			'drawals' => DepositTradeModel::find()->where(['bizIdentity' => Def::TRADE_DRAW, 'status' => 'WAIT_ADMIN_VERIFY'])->count('trade_id'),
+			'drawals' => DepositTradeModel::find()->where(['bizIdentity' => Def::TRADE_DRAW, 'status' => 'VERIFY'])->count('trade_id'),
 			'stores'  => StoreModel::find()->where(['in', 'state', [Def::STORE_APPLYING, Def::STORE_NOPASS]])->count('store_id'),
 			'guideshops' => GuideshopModel::find()->where(['in', 'status', [Def::STORE_APPLYING, Def::STORE_NOPASS]])->count('id'),
 			'distributeshops' => DistributeMerchantModel::find()->where(['in', 'status', [Def::STORE_APPLYING, Def::STORE_NOPASS]])->count('dmid'),

@@ -31,7 +31,9 @@
               <th class="paddingT15"><label>{$lang.hot_keywords}</label></th>
               <td class="paddingT15 wordSpacing5"><input id="hot_keywords" type="text" name="hot_keywords"
                   value="{$setting.hot_keywords}" class="infoTableInput" style="width: 500px;" />
-                <div class="notice-word"><p class="layui-font-12 mt5">{$lang.hot_keywords_note}</p></div>
+                <div class="notice-word">
+                  <p class="layui-font-12 mt5">{$lang.hot_keywords_note}</p>
+                </div>
               </td>
             </tr>
             <tr>
@@ -65,7 +67,8 @@
               <th class="paddingT15"><label>{$lang.site_logo}</label></th>
               <td class="paddingT15 wordSpacing5 webkit-box">
                 <div class="input-file-show">
-                  <input class="type-file-file" onchange="getTempPathcallback(this)" name="site_logo" type="file" size="30" hidefocus="true">
+                  <input class="type-file-file" onchange="getTempPathcallback(this)" name="site_logo" type="file"
+                    size="30" hidefocus="true">
                   <input type="hidden" name="fileVal_site_logo" value="site_logo" />
                   <div class="type-file-image">
                     <!--{if $setting.site_logo}-->
@@ -76,61 +79,108 @@
                     <!--{/if}-->
                   </div>
                 </div>
-                <label class="field_notice f-13 inline-block box-align-center ml20" style="width: 120px;">{$lang.site_logo_desc}</label>
+                <label class="field_notice f-13 inline-block box-align-center ml20"
+                  style="width: 120px;">{$lang.site_logo_desc}</label>
               </td>
             </tr>
             <tr>
               <th class="paddingT15"><label>{$lang.default_goods_image}</label></th>
               <td class="paddingT15 wordSpacing5 webkit-box">
                 <div class="input-file-show">
-                    <input class="type-file-file" onchange="getTempPathcallback(this)" name="default_goods_image" type="file" size="30" hidefocus="true">
-                    <input type="hidden" name="fileVal_default_goods_image" value="default_goods_image" />
-                    <div class="type-file-image">
-                      <!--{if $setting.default_goods_image}-->
-                      <img class="block" src="{$setting.default_goods_image|url_format}" width="100" height="100" />
-                      <span>修改图片</span>
-                      <!--{else}-->
-                      <i class="iconfont icon-icon_pic"></i>
-                      <!--{/if}-->
-                    </div>
+                  <input class="type-file-file" onchange="getTempPathcallback(this)" name="default_goods_image"
+                    type="file" size="30" hidefocus="true">
+                  <input type="hidden" name="fileVal_default_goods_image" value="default_goods_image" />
+                  <div class="type-file-image">
+                    <!--{if $setting.default_goods_image}-->
+                    <img class="block" src="{$setting.default_goods_image|url_format}" width="100" height="100" />
+                    <span>修改图片</span>
+                    <!--{else}-->
+                    <i class="iconfont icon-icon_pic"></i>
+                    <!--{/if}-->
+                  </div>
                 </div>
-                <label class="field_notice f-13 inline-block box-align-center ml20" style="width: 120px;">{$lang.default_goods_image_desc}</label>
+                <label class="field_notice f-13 inline-block box-align-center ml20"
+                  style="width: 120px;">{$lang.default_goods_image_desc}</label>
               </td>
             </tr>
             <tr>
               <th class="paddingT15"><label>{$lang.default_store_logo}</label></th>
               <td class="paddingT15 wordSpacing5 webkit-box">
                 <div class="input-file-show">
-                    <input class="type-file-file" onchange="getTempPathcallback(this)" name="default_store_logo" type="file" size="30" hidefocus="true">
-                    <input type="hidden" name="fileVal_default_store_logo" value="default_store_logo" />
-                    <div class="type-file-image">
-                      <!--{if $setting.default_store_logo}-->
-                      <img class="block" src="{$setting.default_store_logo|url_format}" width="100" height="100" />
-                      <span>修改图片</span>
-                      <!--{else}-->
-                      <i class="iconfont icon-icon_pic"></i>
-                      <!--{/if}-->
-                    </div>
+                  <input class="type-file-file" onchange="getTempPathcallback(this)" name="default_store_logo"
+                    type="file" size="30" hidefocus="true">
+                  <input type="hidden" name="fileVal_default_store_logo" value="default_store_logo" />
+                  <div class="type-file-image">
+                    <!--{if $setting.default_store_logo}-->
+                    <img class="block" src="{$setting.default_store_logo|url_format}" width="100" height="100" />
+                    <span>修改图片</span>
+                    <!--{else}-->
+                    <i class="iconfont icon-icon_pic"></i>
+                    <!--{/if}-->
+                  </div>
                 </div>
-                <label class="field_notice f-13 inline-block box-align-center ml20" style="width: 120px;">{$lang.default_store_logo_desc}</label>
+                <label class="field_notice f-13 inline-block box-align-center ml20"
+                  style="width: 120px;">{$lang.default_store_logo_desc}</label>
               </td>
             </tr>
             <tr>
               <th class="paddingT15"><label>{$lang.default_user_portrait}</label></th>
               <td class="paddingT15 wordSpacing5 webkit-box">
                 <div class="input-file-show">
-                    <input class="type-file-file" onchange="getTempPathcallback(this)" name="default_user_portrait" type="file" size="30" hidefocus="true">
-                    <input type="hidden" name="fileVal_default_user_portrait" value="default_user_portrait" />
-                    <div class="type-file-image">
-                      <!--{if $setting.default_user_portrait}-->
-                      <img class="block" src="{$setting.default_user_portrait|url_format}" width="100" height="100" />
-                      <span>修改图片</span>
-                      <!--{else}-->
-                      <i class="iconfont icon-icon_pic"></i>
-                      <!--{/if}-->
-                    </div>
+                  <input class="type-file-file" onchange="getTempPathcallback(this)" name="default_user_portrait"
+                    type="file" size="30" hidefocus="true">
+                  <input type="hidden" name="fileVal_default_user_portrait" value="default_user_portrait" />
+                  <div class="type-file-image">
+                    <!--{if $setting.default_user_portrait}-->
+                    <img class="block" src="{$setting.default_user_portrait|url_format}" width="100" height="100" />
+                    <span>修改图片</span>
+                    <!--{else}-->
+                    <i class="iconfont icon-icon_pic"></i>
+                    <!--{/if}-->
+                  </div>
                 </div>
-                <label class="field_notice f-13 inline-block box-align-center ml20" style="width: 120px;">{$lang.default_user_portrait_desc}</label>
+                <label class="field_notice f-13 inline-block box-align-center ml20"
+                  style="width: 120px;">{$lang.default_user_portrait_desc}</label>
+              </td>
+            </tr>
+            <tr>
+              <th></th>
+              <td class="ptb20"><input class="layui-btn layui-bg-blue J_AjaxSubmit" type="submit"
+                  value="{$lang.submit}" /></td>
+            </tr>
+          </table>
+        </form>
+      </div>
+      <div class="flexigrid">
+        <h2 class="bold layui-font-16">时效设置</h2>
+        <form method="post">
+          <table class="infoTable infoTable2">
+            <tr>
+              <th class="paddingT15"><label>确认收货时间</label></th>
+              <td class="paddingT15 layui-form">
+                <input type="text" name="autoshipday" value="{$setting.autoshipday|default:8}" /> 天
+                <p class="field_notice mt10">卖家发货后，如买家没有主动确认收货，则系统多久自动确认交易</p>
+              </td>
+            </tr>
+            <tr>
+              <th class="paddingT15"><label>取货完成时间</label></th>
+              <td class="paddingT15 layui-form">
+                <input type="text" name="autodeliveryday" value="{$setting.autodeliveryday|default:2}" /> 天
+                <p class="field_notice mt10">针对社区团购自提订单，团长通知缺货后多久系统自动交易完成</p>
+              </td>
+            </tr>
+            <tr>
+              <th class="paddingT15"><label>成团订单时间</label></th>
+              <td class="paddingT15 layui-form">
+                <input type="text" name="autogroupday" value="{$setting.autogroupday|default:1}" /> 天
+                <p class="field_notice mt10">针对拼团订单，已付款的但未成团的，多久后自动成团</p>
+              </td>
+            </tr>
+            <tr>
+              <th class="paddingT15"><label>关闭订单时间</label></th>
+              <td class="paddingT15 layui-form">
+                <input type="text" name="autocloseday" value="{$setting.autocloseday|default:2}" /> 天
+                <p class="field_notice mt10">已下单未付款的，自动关闭订单时间</p>
               </td>
             </tr>
             <tr>
@@ -162,8 +212,8 @@
             </tr>
             <tr>
               <th class="paddingT15"><label>{$lang.statistics_code}</label></th>
-              <td class="paddingT15 wordSpacing5"><textarea name="statistics_code"
-                  id="statistics_code" style="height: 40px;">{$setting.statistics_code|escape}</textarea></td>
+              <td class="paddingT15 wordSpacing5"><textarea name="statistics_code" id="statistics_code"
+                  style="height: 40px;">{$setting.statistics_code|escape}</textarea></td>
             </tr>
             <tr>
               <th class="paddingT15"><label>{$lang.site_mode}</label></th>
@@ -172,7 +222,9 @@
                   neq 'debug' }checked{/if} />
                 <input type="radio" name="site_mode" value="debug" title="{$lang.site_debug}" {if $setting.site_mode
                   eq 'debug' }checked{/if} />
-                <div class="notice-word"><p class="layui-font-12 mt5">{$lang.note_for_site_mode}</p></div>
+                <div class="notice-word">
+                  <p class="layui-font-12 mt5">{$lang.note_for_site_mode}</p>
+                </div>
               </td>
             </tr>
 
@@ -187,8 +239,8 @@
             </tr>
             <tr>
               <th class="paddingT15"><label> <label>{$lang.closed_reason}</label></th>
-              <td class="paddingT15 wordSpacing5"><textarea name="closed_reason"
-                  id="closed_reason" style="height: 40px;">{$setting.closed_reason}</textarea></td>
+              <td class="paddingT15 wordSpacing5"><textarea name="closed_reason" id="closed_reason"
+                  style="height: 40px;">{$setting.closed_reason}</textarea></td>
             </tr>
 
             <tr>

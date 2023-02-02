@@ -34,7 +34,7 @@ class GoodsStatisticsModel extends ActiveRecord
 	/* 
 	 * 更新浏览量/收藏量/销量/评价量 
 	 */
-	public static function updateStatistics($id = 0, $fields = 'views')
+	public static function updateStatistics($id = 0, $fields = 'views', $quantity = 1)
 	{
 		if(!in_array($fields, ['views', 'collects', 'orders', 'sales', 'comments'])) {
 			return false;
@@ -42,11 +42,11 @@ class GoodsStatisticsModel extends ActiveRecord
 		if(!self::find()->where(['goods_id' => $id])->exists()) {
 			$model = new GoodsStatisticsModel();
 			$model->goods_id = $id;
-			$model->$fields = 1;
+			$model->$fields = $quantity;
 			return $model->save();
 		}
 		elseif($model = self::find()->where(['goods_id' => $id])->one()) {
-			return $model->updateCounters([$fields => 1]); 
+			return $model->updateCounters([$fields => $quantity]); 
 		}
 		return false;
 	}

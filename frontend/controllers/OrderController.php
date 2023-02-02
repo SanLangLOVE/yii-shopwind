@@ -61,7 +61,7 @@ class OrderController extends \common\controllers\BaseUserController
 	public function actionMeal()
 	{
 		$post = Basewind::trimAll(Yii::$app->request->get(), true, ['id']);
-		return $this->build('meal', Url::toRoute(['order/meal', 'id' => $post->id, 'specs' => $post->specs]));
+		return $this->build('mealbuy', Url::toRoute(['order/meal', 'id' => $post->id, 'specs' => $post->specs]));
 	}
 
 	private function build($otype = 'normal', $redirect = null)

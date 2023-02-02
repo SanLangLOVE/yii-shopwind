@@ -1415,55 +1415,6 @@ i.fa {
     border:0;
 }
 
-.webim {
-    margin: 0;
-    padding: 10px;
-    background: #f0f7ff;
-    border-radius: 5px;
-}
-
-.webim .each {
-    border: 1px #f1f1f1 solid;
-    margin-bottom: 10px
-}
-
-.webim .hd {
-    font-weight: normal;
-    height: 30px;
-    line-height: 30px;
-    background: #cbe4f5;
-    border-bottom: 1px #cbe4f5 solid;
-    text-indent: 10px;
-}
-
-.webim .hd h3 {
-    float: left;
-    font-weight: normal
-}
-
-.webim .hd p {
-    float: right;
-    padding-right: 10px;
-}
-
-.webim .bd {
-    background: #fff;
-}
-
-.webim .bd .wrap {
-    padding: 10px;
-}
-
-.webim .hd p a {
-    height: 20px;
-    line-height: 20px;
-    font-size: 12px;
-    width: auto;
-    padding: 0px 15px 0 5px;
-    text-align: center;
-    margin-top: 5px;
-}
-
 /* 数据库操作 */
 .database .back {
     height: 400px;

@@ -62,7 +62,7 @@ class DepositRechargelistForm extends Model
 			$query->andWhere(['<=', 'add_time', Timezone::gmstr2time($post->add_time_to)]);
 		}
 		if($post->status) {
-			$query->andWhere(['status' => in_array(strtoupper($post->status), ['VERIFING']) ? 'WAIT_ADMIN_VERIFY' : 'SUCCESS']);
+			$query->andWhere(['status' => in_array(strtoupper($post->status), ['VERIFING']) ? 'VERIFY' : 'SUCCESS']);
 		}
 		
 		return $query;

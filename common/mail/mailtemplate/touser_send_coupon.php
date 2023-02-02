@@ -8,7 +8,7 @@ return array (
 <p>&nbsp;&nbsp;&nbsp; 有效期：{$coupon.start_time|date_format:"%Y.%m.%d %H:%M:%S"}至{$coupon.end_time|date_format:"%Y.%m.%d %H:%M:%S"}</p>
 <p>&nbsp;&nbsp;&nbsp; 优惠券号码：{$user.coupon_sn}</p>
 <p>&nbsp;&nbsp;&nbsp; 使用条件：购物满{$coupon.min_amount|price_format}即可使用</p>
-<p>&nbsp;&nbsp;&nbsp; 店铺地址：<a href="{url route=\'store/index\' id=$coupon.store_id}">{url route=\'store/index\' id=$coupon.store_id}</a></p>
+<p>&nbsp;&nbsp;&nbsp; 店铺地址：<a href="{url route=\'store/index\' id=$coupon.store_id baseUrl=$site_url}">{url route=\'store/index\' id=$coupon.store_id}</a></p>
 <p style="padding-left: 30px;">&nbsp;</p>
 <p style="text-align: right;">网站名称：{$site_name}</p>
 <p style="text-align: right;">日期：{$send_time}</p>',

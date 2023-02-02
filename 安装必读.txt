@@ -30,6 +30,7 @@ ShopWind开发者交流群：86696159
 https://www.shopwind.net/static/images/authorize1.jpg
 https://www.shopwind.net/static/images/authorize2.jpg
 
+111
 
 
 **系统基础功能配置**
@@ -38,11 +39,11 @@ https://www.shopwind.net/static/images/authorize2.jpg
 
 一、支付宝电脑网站支付接口申请：
 申请地址：http://www.alipay.com  在这个页面登陆后，进入https://b.alipay.com/signing/productDetail.htm?productId=I1011000290000001000  申请电脑网站支付接口
-申请好了之后到：后台-》设置-》支付方式-》支付宝-》启用-》配置-》填写信息， 接口类型填写即时到帐交易接口
+申请好了之后到：后台-》设置-》支付方式-》支付宝-》启用-》配置
 
 二、如果支付宝手机支付接口申请
 申请地址：https://b.alipay.com/signing/productDetail.htm?productId=I1011000290000001001
-申请好了之后到：后台-》设置-》支付方式-》支付宝（WAP）-》启用-》配置-》填写信息，接口类型填写即时到帐交易接口
+申请好了之后到：后台-》设置-》支付方式-》支付宝（WAP）-》启用-》配置
 
 三、物流跟踪申请key步骤：
 http://www.kuaidi100.com/openapi/api_2_02.shtml
@@ -88,4 +89,7 @@ http://open.weibo.com/authentication/
    接着再申请一个服务端的，申请地址： http://lbsyun.baidu.com/apiconsole/key/create   创建应用-》应用类型 选服务端， 启用服务默认
    得到KEY后，到后台-》设置-》网站设置-》基本信息-》百度地图KEY-》浏览器KEY
 
+九、转账到支付宝接口（提现后直接到支付宝钱包）：
+https://b.alipay.com/signing/productDetailV2.htm?productId=I1012000291000001000
+https://opendocs.alipay.com/open/02byuo?scene=ca56bca529e64125a2786703c6192d41
 

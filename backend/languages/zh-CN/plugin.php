@@ -29,13 +29,11 @@ return array(
     'appCertPath' => '应用公钥证书',
     'alipayCertPath' => '支付宝公钥证书',
     'rootCertPath' => '支付宝根证书',
-    'certPath_desc' => '填证书相对路径，证书文件请自行上传至服务器目录：common/plugins/payment/alpay/cacert',
+    'certPath_desc' => '填证书相对路径，证书文件请自行上传至服务器目录：common/plugins/payment/alipay/cacert',
 	'signType' => '签名类型',
 	'signType_RSA2' => 'RSA2',
 	'signType_RSA'  => 'RSA',
-    'alitranpay' => '转账到支付宝',
-    'alitranpay_desc' => '转账到支付宝钱包，主要用于用户提现到支付宝，平台审核后款项将从平台企业支付宝自动划扣，即时到账，注意开通该功能前，请确保后台登录为较高的安全级别',
-	
+
 	'cod'           => '货到付款',
     'cod_desc'      => '商家需要单独设置支持货到付款的地区（城市），请到商家中心->支付方式管理中设置“可货到付款地区”',
     'cod_currency'  => '所有货币',

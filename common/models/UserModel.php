@@ -295,36 +295,4 @@ class UserModel extends ActiveRecord implements IdentityInterface
 		}
 		return self::generateName($prefix);	
 	}
-	
-	/**
-     * 通过ID获取用户头像/用户名，如果头像为空，或头像图片文件不存在，使用默认头像
-	 * 目前仅用在WebIm
-	 */
-	public static function getAvatarById($userid = 0, $useLogo = false)
-	{
-		if(!$userid || !($user = self::find()->select('username,portrait')->where(['userid' => $userid])->one())) 
-		{
-			$avatar 	= Yii::$app->params['default_user_portrait'];
-			$username 	= Language::get('guest');
-			$exists     = false;
-		}
-		else
-		{
-			$avatar   = empty($user->portrait) ? Yii::$app->params['default_user_portrait'] : $user->portrait;
-			$username = $user->username;
-			$exists   = true;
-			
-			// 如果用户是店家，且使用店铺LOGO作为头像
-			if($useLogo === true && ($store = StoreModel::find()->select('store_name,store_logo')->where(['store_id' => Yii::$app->user->id])->one())) 
-			{
-				$avatar	 	= empty($store->store_logo) ? Yii::$app->params['default_store_logo'] : $store->store_logo;
-				$username	= $store->store_name;
-			}
-			
-			// 如果图片不存在
-			$file = Def::fileSavePath() . '/' . str_replace(Def::fileSaveUrl().'/', '', $avatar);
-			!file_exists($file) && $avatar = Yii::$app->params['default_user_portrait']; 
-		}
-		return array(Page::urlFormat($avatar), $username, $exists);
-	}
 }

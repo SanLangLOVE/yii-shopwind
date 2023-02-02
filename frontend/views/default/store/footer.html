@@ -67,7 +67,9 @@
     </ul>
   </div>
   <div class="foot-fixed J_FootFixed">
-    <div class="foot-fixed-box"> 
+    <div class="foot-fixed-box">
+      <a class="cart j-icon J_F_CardItem" href="{url route='cart/index'}"><i></i><em class="count-cart J_C_T_GoodsKinds">{$carts_top.kinds|default:0}</em></a> 
+      <a class="qq j-icon J_Icon" href="{url route='webim/index' store_id=$store.store_id toid=$store.store_id}"  target="_blank"><i>qq</i>{if $visitor.unread gt 0}<em>{$visitor.unread}</em>{/if}</a> 
       <a class="backtop j-icon J_Icon"><i>back_top</i></a>
     </div>
   </div>

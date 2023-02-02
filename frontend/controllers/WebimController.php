@@ -13,19 +13,22 @@ namespace frontend\controllers;
 
 use Yii;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
 
 use common\models\UserModel;
-use common\models\WebimOnlineModel;
-use common\models\UploadedFileModel;
+use common\models\WebimModel;
+use common\models\StoreModel;
+use common\models\UserPrivModel;
+
 
 use common\library\Basewind;
 use common\library\Language;
 use common\library\Message;
 use common\library\Page;
-use common\library\Def;
+use common\library\Timezone;
 
 /**
- * @Id WebimController.php 2018.10.24 $
+ * @Id WebimController.php 2022.7.24 $
  * @author mosir
  */
 
@@ -43,120 +46,211 @@ class WebimController extends \common\controllers\BaseUserController
 		$this->params = ArrayHelper::merge($this->params, Page::getAssign('mall'));
 	}
 	
+	public function actionIndex()
+	{
+		$post = Basewind::trimAll(Yii::$app->request->get(), true, ['toid','store_id']);
+		if(!$post->toid){
+			// 跟平台回话
+			$admin = UserPrivModel::find()->where(['store_id' => 0, 'privs' => 'all'])->one();
+            $post->toid = $admin->userid;
+			// 如果是平台客服点击，有对话才可以进入回话
+			if($this->visitor['userid'] == $post->toid){
+				$unread = WebimModel::find()->where(['toid' => $post->toid])->orderBy(['unread' => SORT_DESC, 'id' => SORT_DESC])->one();
+				if(!empty($unread)){
+				    $post->toid = $unread->fromid;
+				}else{
+				    return Message::warning(Language::get('talk_empty'));
+				}
+			}
+			Yii::$app->getResponse()->redirect(Url::toRoute(['webim/index', 'toid' => $post->toid]));
+		 	return false;
+		}else{
+			if(!UserModel::find()->where(['userid' => $post->toid])->exists()){
+				return Message::warning(Language::get('talk_empty'));
+			}
+		}
+		if($post->toid == $this->visitor['userid']){
+			return Message::warning(Language::get('talk_yourself'));
+		}
+		$this->params['page'] = Page::seo();
+		$logs = $this->getLogs($post->toid);
+		$this->params['lists'] = $this->getList();
+		$this->params['logs'] = $logs;
+		$this->params['user'] = $this->getUser($post->toid, $post->store_id);
+		$this->params['logs_counts'] = WebimModel::find()->where(['or', ['fromid' => $this->visitor['userid'], 'toid' => $post->toid], ['toid' => $this->visitor['userid'], 'fromid' => $post->toid]])->count();
+		$this->params['lists_counts'] = WebimModel::find()->where(['or', ['fromid' => $this->visitor['userid']], ['toid' => $this->visitor['userid']]])->groupBy('groupid')->count();
+		return $this->render('../webim.index.html', $this->params);
+	}
+
+	public function getUser($userid, $store_id=0)
+	{
+		if(!$userid || (!$user = UserModel::find()->select('userid,username,nickname,portrait')->where(['userid' => $userid])->asArray()->one())){
+			return Message::warning(Language::get('no_such_user'));
+		}
+		$user['portrait'] = empty($user['portrait']) ? Yii::$app->params['default_user_portrait'] : $user['portrait'];
+		if($store_id){
+			$store = StoreModel::find()->select('store_name')->where(['store_id' => $store_id])->one();
+			$user['nickname'] = $store['store_name'];
+		}
+		return $user;
+	}
+
 	/**
-	 * 排除特定Action外，其他需要登录后访问
-	 * @param $action
-	 * @var array $extraAction
+	 * 获取会话列表
 	 */
-	public function beforeAction($action)
-    {
-		$this->extraAction = ['friend'];
-		return parent::beforeAction($action);
-    }
-	
-	public function actionFriend()
+	public function getList()
 	{
-		Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-		$model = new \frontend\models\WebimFriendForm();
-		return $model->formData();
-	}
-	
-	/* 获取当前访客或者指定客服的信息 */
-	public function actionUser()
-	{
-		$post = Basewind::trimAll(Yii::$app->request->get(), true, ['toid']);
-		
-		$model = new \frontend\models\WebimUserForm();
-		$result = $model->formData($post);
-		return Message::result($result);	
-	}
-	
-	/* 显示在对话框的最新的聊天记录 */
-	public function actionLastchat()
-	{
-		$post = Basewind::trimAll(Yii::$app->request->get(), true, ['id', 'limit']);
-		
-		$model = new \frontend\models\WebimLastchatForm();
-		$result = $model->formData($post);
-		return Message::result($result);
-	}
-	
-	/* 所有聊天记录 */
-	public function actionChatlog()
-	{
-		$post = Basewind::trimAll(Yii::$app->request->get(), true, ['id', 'page']);
-		
-		$model = new \frontend\models\WebimChatlogForm();
-		list($list, $page) = $model->formData($post);
-		
-		// 首次加载，显示最后一页的内容，而非第一页（这样才符合聊天记录的现实情况）
-		// 由于此处不好实现重写分页，暂时先用跳转来处理（这样不好的地方是：有可能最末页显示很少的记录，而前一页是满页
-		if(!isset($post->page)) {
-			return $this->redirect(['webim/chatlog', 'id' => $post->id, 'type' => $post->type, 'page' => $page->getPageCount()]);
+		$list = WebimModel::find()->select('fromid,toid,store_id,store_name')->where(['or', ['fromid' => $this->visitor['userid']], ['toid' => $this->visitor['userid']]])->groupBy('groupid')->limit(100)->asArray()->all();
+		foreach ($list as $key => $value) {
+			if ($user = UserModel::find()->select('userid,username,nickname,portrait')->where(['userid' => $value['fromid'] == $this->visitor['userid'] ? $value['toid'] : $value['fromid']])->asArray()->one()) {
+				$user['portrait'] = empty($user['portrait']) ? Yii::$app->params['default_user_portrait'] : $user['portrait'];
+				$value['to'] = $user;
+			}
+
+			// 获取最后一条信息
+			$record = WebimModel::find()->select('fromid,toid,content, created')->where(['or', ['fromid' => $value['fromid'], 'toid' => $value['toid']], ['fromid' => $value['toid'], 'toid' => $value['fromid']]])->orderBy(['id' => SORT_DESC])->asArray()->one();
+			$record['created'] = Timezone::localDate('m-d H:i:s', $record['created']);
+
+			// 获取未读消息数量
+			$record['unreads'] = intval(WebimModel::find()->where(['fromid' => $record['fromid'], 'toid' => $this->visitor['userid'], 'unread' => 1])->sum('unread'));
+			$list[$key] = array_merge($value, $record);
 		}
-		
-		$this->params['list'] = $list;
-		$this->params['pagination'] = Page::formatPage($page, true, 'basic');
-		
-		$this->params['page'] = Page::seo(['title' => Language::get('chatlog')]);
-        return $this->render('../webim.chatlog.html', $this->params);
+		return $list;
 	}
-	
-	/* 检查是否禁用用户发送信息 */
-	public function actionImforbid()
+
+	/**
+	 * 获取客服聊天记录
+	 */
+	public function getLogs($toid)
 	{
-		$post = Basewind::trimAll(Yii::$app->request->get(), true, ['uid']);
-		
-		Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-		if(!$post->uid || UserModel::find()->select('imforbid')->where(['userid' => $post->uid])->scalar()) {
-			return true;
+		$query = WebimModel::find()->where(['or', ['fromid' => $this->visitor['userid'], 'toid' => $toid], ['toid' => $this->visitor['userid'], 'fromid' => $toid]])->orderBy(['id' => SORT_DESC]);
+		$list = $query->limit(100)->asArray()->all();
+
+		$readarray = [];
+		foreach ($list as $key => $value) {
+			if ($users = UserModel::find()->select('userid,username,nickname,portrait')->where(['in', 'userid', [$value['fromid'], $value['toid']]])->asArray()->all()) {
+				foreach ($users as $user) {
+					$user['portrait'] = empty($user['portrait']) ? Yii::$app->params['default_user_portrait'] : $user['portrait'];
+					$list[$key][$user['userid'] == $value['fromid'] ? 'from' : 'to'] = $user;
+				}
+			}
+			if ($value['toid'] == $this->visitor['userid'] && $value['unread']) {
+				$readarray[] = $value['id'];
+			}
+			$list[$key]['created'] = Timezone::localDate('m-d H:i:s', $value['created']);
 		}
-		return false;
+
+		// 设置为已读
+		if ($readarray) {
+			WebimModel::updateAll(['unread' => 0], ['in', 'id', $readarray]);
+		}
+
+		// 使最新的记录显示在后面
+		array_multisort(array_column($list, 'id'), SORT_ASC, $list);
+
+		return $list;
 	}
-	
-	/* 用户下线 */
-	public function actionLogout()
+
+	/**
+	 * 发送消息
+	 */
+	public function actionSend()
 	{
-		$post = Basewind::trimAll(Yii::$app->request->get(), true, ['uid']);
-		$token = 'abcdefghijklmn1234556789';
-		
-		// 签名验证，防止人为恶意删除，导致下线用户不准确		
-		if($post->uid && md5($post->uid.$token) == $post->sign) {
-			WebimOnlineModel::deleteAll(['userid' => $post->uid]);
+		// 业务参数
+		$post = Basewind::trimAll(Yii::$app->request->get(), true, ['toid', 'store_id']);
+
+		if (empty($post->content)) {
+			return Message::warning(Language::get('content_empty'));
+		}
+		if(!$post->toid){
+			$admin = UserPrivModel::find()->select('userid')->where(['store_id' => 0, 'privs' => 'all'])->one();
+			$post->toid = $admin->userid;
+		}
+		if ($post->toid == $this->visitor['userid']) {
+			return Message::warning(Language::get('talk_yourself'));
+		}else{
+			if(!UserModel::find()->where(['userid' => $post->toid])->exists()){
+				return Message::warning(Language::get('talk_empty'));
+			}
+		}
+
+		$model = new WebimModel();
+		$model->toid = $post->toid;
+		$model->fromid = $this->visitor['userid'];
+		$model->store_id = intval($post->store_id);
+		$model->content = $post->content;
+		$model->unread = 1;
+		$model->created = Timezone::gmtime();
+
+		if ($model->store_id && ($store = StoreModel::find()->select('store_name')->where(['store_id' => $model->store_id])->one())) {
+			$model->store_name = $store->store_name;
+		}
+		if ($query = WebimModel::find()->select('groupid')->where(['or', ['fromid' => $model->fromid, 'toid' => $model->toid], ['fromid' => $model->toid, 'toid' => $model->fromid]])->one()) {
+			$model->groupid = $query->groupid;
+		} else $model->groupid = md5($model->fromid . ':' . $model->toid);
+
+		if (!$model->save()) {
+			return Message::warning($model->errors);
+		}
+
+		return Message::result(true);
+	}
+
+	public function actionGetnewlogs()
+	{
+		$post = Basewind::trimAll(Yii::$app->request->get(), true, ['count', 'toid']);
+		$toid = $post->toid;
+		$counts = WebimModel::find()->where(['or', ['fromid' => $this->visitor['userid'], 'toid' => $toid], ['toid' => $this->visitor['userid'], 'fromid' => $toid]])->count();
+		if ($counts > $post->count) {
+			$query = WebimModel::find()->where(['or', ['fromid' => $this->visitor['userid'], 'toid' => $toid], ['toid' => $this->visitor['userid'], 'fromid' => $toid]])->orderBy(['id' => SORT_DESC]);
+			$list = $query->limit($counts - $post->count)->asArray()->all();
+			$readarray = [];
+			foreach ($list as $key => $value) {
+				if ($users = UserModel::find()->select('userid,username,nickname,portrait')->where(['in', 'userid', [$value['fromid'], $value['toid']]])->asArray()->all()) {
+					foreach ($users as $user) {
+						$user['portrait'] = empty($user['portrait']) ? Yii::$app->params['default_user_portrait'] : $user['portrait'];
+						$list[$key][$user['userid'] == $value['fromid'] ? 'from' : 'to'] = $user;
+					}
+				}
+				if ($value['toid'] == $this->visitor['userid'] && $value['unread']) {
+					$readarray[] = $value['id'];
+				}
+				$list[$key]['created'] = Timezone::localDate('m-d H:i:s', $value['created']);
+			}
+			// 设置为已读
+			if ($readarray) {
+				WebimModel::updateAll(['unread' => 0], ['in', 'id', $readarray]);
+			}
+			// 使最新的记录显示在后面
+			array_multisort(array_column($list, 'id'), SORT_ASC, $list);
+			return Message::result(array('logs_counts' => $counts, 'lists' => $list));
+		} else {
+			return Message::warning('no_news');
 		}
 	}
-	
-	/* 获取所有在线的用户-上线的时候才会执行（发言不执行）*/
-	public function actionOnline()
+
+	public function actionGetnewlist()
 	{
-		$post = Basewind::trimAll(Yii::$app->request->get(), true, ['uid']);
-		$token = 'abcdefghijklmn1234556789';
-		
-		Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-		$model = new \frontend\models\WebimOnlineForm(['token' => $token]);
-		return $model->formData($post);
-	}
-	
-	public function actionTalk()
-	{
-		$post = Basewind::trimAll(Yii::$app->request->post(), true, ['from','to']);
-		$token = 'abcdefghijklmn1234556789';
-		
-		Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-		$model = new \frontend\models\WebimTalkForm(['token' => $token]);
-		return $model->save($post);
-	}
-	
-	/* 在聊天窗上传图片 */
-	public function actionUpload()
-	{
-		Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-		if(($image = UploadedFileModel::getInstance()->upload('file', 0, Def::BELONG_WEBIM))) {
-			$result = ['code' => 0, 'msg' => '', 'data' => ['src' => Page::urlFormat($image)]];
+		$post = Basewind::trimAll(Yii::$app->request->get(), true, ['count']);
+		$counts = WebimModel::find()->where(['or', ['fromid' => $this->visitor['userid']], ['toid' => $this->visitor['userid']]])->groupBy('groupid')->count();
+		if ($counts > $post->count) {
+			$list = WebimModel::find()->select('fromid,toid,store_id,store_name')->where(['or', ['fromid' => $this->visitor['userid']], ['toid' => $this->visitor['userid']]])->groupBy('groupid')->limit($counts - $post->count)->orderBy(['id' => SORT_DESC])->asArray()->all();
+			foreach ($list as $key => $value) {
+				if ($user = UserModel::find()->select('userid,username,nickname,portrait')->where(['userid' => $value['fromid'] == $this->visitor['userid'] ? $value['toid'] : $value['fromid']])->asArray()->one()) {
+					$user['portrait'] = empty($user['portrait']) ? Yii::$app->params['default_user_portrait'] : $user['portrait'];
+					$value['to'] = $user;
+				}
+				// 获取最后一条信息
+				$record = WebimModel::find()->select('fromid,toid,content, created')->where(['or', ['fromid' => $value['fromid'], 'toid' => $value['toid']], ['fromid' => $value['toid'], 'toid' => $value['fromid']]])->orderBy(['id' => SORT_DESC])->asArray()->one();
+				$record['created'] = Timezone::localDate('m-d H:i:s', $record['created']);
+
+				// 获取未读消息数量
+				$record['unreads'] = intval(WebimModel::find()->where(['fromid' => $record['fromid'], 'toid' => $this->visitor['userid'], 'unread' => 1])->sum('unread'));
+				$list[$key] = array_merge($value, $record);
+			}
+			return Message::result(array('lists_counts' => $counts, 'lists' => $list));
+		} else {
+			return Message::warning('no_news');
 		}
-		else {
-			$result = ['code' => 1, 'msg' => Language::get('upload_fail'), 'data' => null];
-		}
-		return $result;
 	}
 }

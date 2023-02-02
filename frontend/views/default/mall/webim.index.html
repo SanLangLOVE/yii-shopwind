@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="{$app->language}">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset={$app->charset}" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="viewport" content="width=device-width" />
+  <meta name="csrf-param" content="{$app->request->csrfParam}">
+  <meta name="csrf-token" content="{$app->request->csrfToken}">
+  <!--remove underline for edge-->
+  <meta name="format-detection" content="telephone=no">
+  <meta name="author" content="ShopWind" />
+  <meta name="generator" content="ShopWind" />
+  <meta name="copyright" content="ShopWind Inc. All Rights Reserved" />
+
+  <title>{$page.title}</title>
+  <meta name="Keywords" content="{$page.keywords}" />
+  <meta name="Description" content="{$page.description}" />
+  <link type="text/css" href="{res file='css/global.css'}" rel="stylesheet" />
+
+  <script type="text/javascript">
+    var HOME_URL = "{$homeUrl}";
+    var SITE_URL = "{$siteUrl}";
+    var ENABLE_PRETTY = "{$enablePretty}";
+  </script>
+  <script type="text/javascript" src='{url route="{$app->controller->id}/jslang"}' charset="{$app->charset}"></script>
+  <script type="text/javascript" src="{lib file='jquery-1.11.1.js'}" charset="{$app->charset}"></script>
+  <script type="text/javascript" src="{lib file='layui/layui.js' }" charset="{$app->charset}"></script>
+  <script type="text/javascript" src="{lib file='shopwind.js'}" charset="{$app->charset}"></script>
+
+  {$_head_tags|default}
+  <style>
+    body {
+      background-color: #e8e8e8;
+    }
+
+    #main {
+      position: relative;
+      margin: 6% auto;
+      width: 60%;
+      height: 60%;
+      min-width: 360px;
+      min-height: 430px;
+      height: 540px;
+      overflow: hidden;
+      background-color: #fff;
+      box-shadow: 0 0 24px 0 rgba(19, 70, 80, .25);
+    }
+
+    .header {
+      background-color: rgb(93, 124, 182);
+      height: 40px;
+      padding: 10px;
+      line-height: 40px;
+      color: #fff;
+      font-size: 16px;
+    }
+
+    .header img {
+      float: left;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      -webkit-border-radius: 50%;
+      margin: 0 12px;
+    }
+
+
+    #content {
+      min-height: 410px;
+      overflow: hidden;
+    }
+
+    #content .left-side {
+      position: absolute;
+      left: 0;
+      top: 60px;
+      width: 70%;
+    }
+
+    #content .right-side {
+      position: absolute;
+      right: 0;
+      top: 60px;
+      width: 30%;
+      background-color: #fff;
+      border: 1px solid #eaeaea;
+      overflow-y: scroll;
+      height: 450px;
+    }
+
+    #content .left-side .messages {
+      padding: 20px;
+      background-color: #f5f5f5;
+      height: 285px;
+      overflow-y: scroll;
+    }
+
+    .messages .bot {
+      margin-bottom: 15px;
+    }
+
+    .portrait {
+      display: inline-block;
+      float: left;
+      margin-right: 10px;
+    }
+
+    .portrait img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      -webkit-border-radius: 50%;
+    }
+
+    .messages .sender {
+      font-size: 12px;
+      color: gray;
+    }
+
+    .messages .sender-text {
+      font-size: 12px;
+      color: gray;
+      margin-right: 10px;
+      margin-bottom: 5px;
+    }
+
+    .messages .msg-content {
+      padding: 8px 12px;
+      word-wrap: break-word;
+      -webkit-border-radius: 18px;
+      border-radius: 8px;
+      -webkit-transition: .2s;
+      transition: .2s;
+      display: inline-block;
+      background-color: #fff;
+      position: relative;
+      max-width: 260px;
+      font-size: 14px;
+      color: #000;
+    }
+
+    .messages .msg-send .msg-content {
+      background: rgb(93, 124, 182);
+      color: #fff;
+      float: right;
+      margin-right: 8px;
+    }
+
+    .messages .msg-send .portrait {
+      float: right;
+    }
+
+    .messages .msg-send .sender {
+      float: right;
+    }
+
+    .messages .msg-send .sender-text {
+      text-align: right;
+    }
+
+
+    #content .left-side .send-box {
+      height: 30%;
+      padding: 10px;
+    }
+
+    .ui-editor {
+      position: relative;
+      height: 100%;
+      min-height: 92px;
+    }
+
+    .ui-editor textarea {
+      display: block;
+      width: 100%;
+      min-height: 50px;
+      max-height: 160px;
+      color: #242e33;
+      font-size: 14px;
+      outline: 0;
+      resize: none;
+      border: 0;
+      overflow-y: auto;
+      word-wrap: break-word;
+      word-break: break-all;
+      line-height: 20px;
+      margin-top: 10px;
+    }
+
+    .ui-editor textarea::-webkit-input-placeholder {
+      color: rgba(36, 46, 51, .5);
+      font-size: 14px;
+      font-weight: 450
+    }
+
+    .btn-alipay {
+      position: absolute;
+      right: 10px;
+      bottom: 0;
+      display: inline-block;
+      background: #19ACF7;
+      font-weight: normal;
+      height: 36px;
+      line-height: 36px;
+      font-size: 13px;
+      border: 0;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      border-radius: 4px !important;
+      min-width: 100px;
+      color: #fff;
+    }
+
+    .btn-alipay:hover {
+      background-position: 0 -392px;
+      color: #fff;
+    }
+
+    .btn-alipay-white {
+      color: #fff;
+      background: gray;
+    }
+
+    .chactlog {
+      padding: 10px;
+    }
+
+    .chactlog li {
+      border-bottom: 1px #f1f1f1 solid;
+      padding: 8px 0;
+      position: relative;
+    }
+
+    .chactlog li .unread{
+      position: absolute;
+      top: 20px;
+      right: 5px;
+      color: #fff;
+    }
+    .chactlog li .unread span{
+      display: block;
+      background: #E4393C;
+      border-radius: 10px;
+      padding: 0 5px;
+    }
+
+    .chactlog img {
+      float: left;
+    }
+
+    .chactlog .txt {
+      padding-left: 50px;
+    }
+
+    .chactlog .name {
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .chactlog .log {
+      margin-top: 5px;
+      color: gray;
+      height: 14px;
+      line-height: 14px;
+      overflow: hidden;
+    }
+
+    #copy-right {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background-color: #f7f7f7;
+      height: 30px;
+      text-align: center;
+      line-height: 30px;
+      color: #c7c6c6;
+      font-size: 12px;
+      z-index: 9999999
+    }
+
+    #copy-right a {
+      cursor: unset
+    }
+  </style>
+</head>
+
+<body id="page-layout-{$app->controller->id|default:'default'}-{$app->controller->action->id|default:'index'}">
+  <div id="main">
+    <div id="header" class="header clearfix">
+      <div class="title clearfix">
+        <img src="{$user.portrait|url_format}" width="40" height="40" /><span>{if $user.nickname}{$user.nickname}{else}{$user.username}{/if}</span>
+      </div>
+    </div>
+    <div id="content" class="clearfix">
+      <div class="left-side">
+        <div class="messages" id="messages">
+          <input id="logs_counts" type="hidden" value="{$logs_counts}" />
+          <!--{foreach from=$logs item=log}-->
+          <div class="bot clearfix">
+            <div class="msg {if $log.fromid == $visitor.userid}msg-send{/if} clearfix">
+              <div class="portrait">
+                <img src="{$log.from.portrait|url_format}" width="40" height="40" />
+              </div>
+              <div class="sender">
+                <p class="sender-text"><span class="time-text">{$log.created}</p>
+                <div class="msg-content">{$log.content}
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- {/foreach} -->
+        </div>
+        <div class="send-box clearfix">
+          <div class="ui-editor clearfix">
+            <textarea rows="1" placeholder="您好！请详细描述您的问题" id="sendContent" onkeydown="keySend(event)" autofocus="true"></textarea>
+            <div class="btn-alipay" id="btnSend">
+              <span>发送(Enter)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="right-side">
+        <input id="lists_counts" type="hidden" value="{$lists_counts}" />
+        <ul class="chactlog" id="chactlog">
+          <!--{foreach from=$lists item=list}-->
+          <li class="clearfix">
+            <a
+              href="{if $list.store_id && $visitor.userid != $list.store_id}{url route='webim/index' store_id=$list.store_id toid=$list.to.userid}{else}{url route='webim/index' toid=$list.to.userid}{/if}">
+              <div class="portrait">
+                <img src="{$list.to.portrait|url_format}" width="40" height="40" />
+              </div>
+              <div class="txt">
+                <p class="name"><span>{if $list.store_id && $visitor.userid != $list.store_id}{$list.store_name}{else}{if
+                    $list.to.nickname}{$list.to.nickname}{else}{$list.to.username}{/if}{/if}</span>
+                </p>
+                <p class="log">{$list.content}</p>
+              </div>
+            </a>
+            <!-- {if $list.unreads gt 0} -->
+            <div class="unread"><span>{$list.unreads}</span></div>
+            <!-- {/if} -->
+          </li>
+          <!-- {/foreach} -->
+        </ul>
+      </div>
+    </div>
+    <div id="copy-right"><span style="color: #C7C6C6;">Copyright © 2015-2022 SHOPWIND.NET 版权所有</span></div>
+    <audio id='audio' src='{res file='music/im.mp3'}'></audio>
+  </div>
+</body>
+<script type="text/javascript">
+  var t = setInterval(function () {
+    refresh();
+  }, 1000);
+  $(function () {
+    $("#messages")[0].scrollTop = $("#messages")[0].scrollHeight;
+    $('#btnSend').click(function () {
+      send();
+    });
+  });
+
+  function keySend(event){
+    if(event.keyCode == 13 && event.ctrlKey){
+      var content = $('#sendContent').val();
+      $('#sendContent').val(content + "\n");
+    }else if(event.keyCode == 13){
+        send();
+        event.preventDefault();
+    }
+  }
+    
+  function send(){
+    var content = $('#sendContent').val();
+      if (content == '') {
+        layer.msg('不能发送空消息！');
+        return false;
+      }
+      var store_id = '{$smarty.get.store_id}';
+      var toid = '{$smarty.get.toid}';
+      $.getJSON(url(['webim/send']), { store_id: store_id, toid: toid, content: content }, function (data) {
+        if (data.done) {
+          $('#sendContent').val('');
+        } else {
+          layer.msg(data.msg);
+        }
+      });
+  }
+
+  function refresh() {
+    var logs_counts = $('#logs_counts').val();
+    var lists_counts = $('#lists_counts').val();
+    var toid = '{$smarty.get.toid}';
+    var userid = '{$visitor.userid}';
+    $.getJSON(url(['webim/getnewlogs']), { toid: toid, count: logs_counts }, function (data) {
+      if (data.done) {
+        $('#logs_counts').val(data.retval.logs_counts);
+        var logs = data.retval.lists;
+
+        $.each(logs, function (index, log) {
+          var sender = '';
+          if (userid == log.fromid) {
+            sender = 'msg-send';
+          }else{
+            audio.play();
+          }
+          var html = '<div class="bot clearfix">' +
+            '<div class="msg ' + sender + ' clearfix">' +
+            '<div class="portrait">' +
+            '<img src="' + url_format(log.from.portrait) + '" width="40" height="40" />' +
+            '</div>' +
+            '<div class="sender">' +
+            '<p class="sender-text"><span class="time-text">' + log.created + '</p>' +
+            '<div class="msg-content">' + log.content + '</div></div></div></div>';
+          $('#messages').append(html);
+          $("#messages")[0].scrollTop = $("#messages")[0].scrollHeight;
+        })
+      }
+    });
+
+    $.getJSON(url(['webim/getnewlist']), { count: lists_counts }, function (data) {
+      if (data.done) {
+        $('#lists_counts').val(data.retval.lists_counts);
+        var lists = data.retval.lists;
+
+        $.each(lists, function (index, list) {
+           var route = url(['webim/index', { toid: list.to.userid }]);
+          var name = '';
+          if (list.store_id > 0 && userid != list.store_id) {
+            route = url(['webim/index', { store_id: list.store_id, toid: list.to.userid }]);
+            name = list.store_name;
+          }else{
+            if(list.to.nickname){
+              name = list.to.nickname;
+            }else{
+              name = list.to.username;
+            }
+          }
+          var unreads = '';
+          if(list.unreads){
+            unreads = '<div class="unread"><span>'+ list.unreads +'</span></div>';
+            audio.play();
+          }
+          var html = '<li class="clearfix">' +
+            '<a href="' + route + '">' +
+            '<div class="portrait">' +
+            '<img src="' + url_format(list.to.portrait) + '" width="40" height="40" />' +
+            '</div>' +
+            '<div class="txt">'+
+              '<p class="name"><span>'+ name +'</span></p>'+
+              '<p class="log">'+ list.content +'</p>'+
+            '</div>'+
+            '</a >'+ unreads +
+          '</li >';
+          $('#chactlog').prepend(html);
+        })
+      }
+    });
+  }
+</script>
+
+</html>

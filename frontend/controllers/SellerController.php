@@ -81,7 +81,7 @@ class SellerController extends \common\controllers\BaseUserController
 		if(!Yii::$app->request->isPost) 
 		{
 			Yii::$app->user->logout();
-
+			
 			if(!($redirect = Yii::$app->request->get('redirect'))) {
 				$redirect = Url::toRoute('my_goods/index');
 			}

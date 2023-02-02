@@ -140,7 +140,7 @@ class Resource
 
             foreach ($items as $value)
             {
-                list($path, $depends) = explode('|', $value);
+                list($path, $depends) = stripos($value, '|') > -1 ? explode('|', $value) : [$value, ''];
                 if($depends) {
                     $array = explode(':', $depends);
                     !empty($array[1]) && $depends = $array[1];

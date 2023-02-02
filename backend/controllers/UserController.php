@@ -344,7 +344,7 @@ class UserController extends \common\controllers\BaseAdminController
 	{
 		if($query === null) {
 			foreach(array_keys(ArrayHelper::toArray($post)) as $field) {
-				if(in_array($field, ['username', 'real_name', 'email', 'phone_mob'])) {
+				if(in_array($field, ['username', 'nickname', 'real_name', 'email', 'phone_mob'])) {
 					return true;
 				}
 			}
@@ -352,6 +352,9 @@ class UserController extends \common\controllers\BaseAdminController
 		}
 		if($post->username) {
 			$query->andWhere(['username' => $post->username]);
+		}
+		if($post->nickname) {
+			$query->andWhere(['nickname' => $post->nickname]);
 		}
 		if($post->real_name) {
 			$query->andWhere(['real_name' => $post->real_name]);

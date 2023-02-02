@@ -69,7 +69,7 @@ class DepositFrozenlistForm extends Model
 		}
 		
 		// 目前只冻结待审核的提现，如果还有其他类型的冻结交易，则加到此
-		$query->andwhere(['tradeCat' => 'WITHDRAW', 'status' => 'WAIT_ADMIN_VERIFY']);
+		$query->andwhere(['tradeCat' => 'WITHDRAW', 'status' => 'VERIFY']);
 		
 		if($post->add_time_from) {
 			$query->andWhere(['>=', 'add_time', Timezone::gmstr2time($post->add_time_from)]);

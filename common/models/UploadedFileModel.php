@@ -97,13 +97,17 @@ class UploadedFileModel extends ActiveRecord
 	 * 生成缩微图/图片缩放
 	 * MODE: THUMBNAIL_INSET|THUMBNAIL_OUTBOUND 
 	 */
-	public function thumbnail($file, $width = 400, $height = 400)
+	public function thumbnail($file, $width = 400, $height = 400, $extension = '')
 	{
 		if(($oss = Plugin::getInstance('oss')->autoBuild())) {
 			return $oss->thumbnail($file, $width, $height);
 		}
 
-		$thumbnail = $file . '.thumb.' . (substr($file, strripos($file, '.') + 1));
+		if(!$extension) {
+			$extension = substr($file, strripos($file, '.') + 1);
+		}
+		$thumbnail = substr($file, 0, strripos($file, '.')) . '.thumb.' . $extension;
+
 		\yii\imagine\Image::thumbnail(
 			Def::fileSavePath() . DIRECTORY_SEPARATOR . $file, 
 			$width, 
@@ -269,8 +273,6 @@ class UploadedFileModel extends ActiveRecord
 				case Def::BELONG_SETTING		:	$savePath = 'data/files/mall/setting/';
 				break;
 				case Def::BELONG_TEMPLATE		:	$savePath = 'data/files/mall/template/';
-				break;
-				case Def::BELONG_WEBIM			:	$savePath = 'data/files/mall/webim/';
 				break;
 				case Def::BELONG_GUIDESHOP		:	$savePath = 'data/files/mall/guideshop/'.$unionid.'/';
 				break;

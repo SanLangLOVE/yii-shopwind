@@ -103,7 +103,7 @@
                   <a href="javascript:;" ectype="dialog" dialog_title="{$lang.edit_express_no}" uri="{url route='seller_order/shipped' order_id=$order.order_id}" dialog_id="seller_order_shipped" dialog_width="400" id="order{$order.order_id}_action_edit_express_no"{if $order.status neq Def::ORDER_SHIPPED} style="display:none" {/if} />{$lang.edit_express_no}</a>
                   <!-- 查看物流 --> 
                   <!--{if $enable_express}--> 
-                  <a target="_blank" class="btn1" href="{url route='express/index' order_id=$order.order_id}" {if $order.status neq Def::ORDER_SHIPPED && $order.status neq Def::ORDER_FINISHED} style="display:none"{/if}>{$lang.view_delivery_track}</a> 
+                  <a target="_blank" class="btn1" href="{url route='express/index' order_id=$order.order_id role=seller}" {if $order.status neq Def::ORDER_SHIPPED && $order.status neq Def::ORDER_FINISHED} style="display:none"{/if}>{$lang.view_delivery_track}</a> 
                   <!--{/if}--> 
                 </div></td>
               <td valign="top" width="54" class="align2 bottom-blue last" rowspan="{$order.goods_quantities}"><!--{if $order.evaluation_status}-->

@@ -33,41 +33,39 @@ class CatePvsModel extends ActiveRecord
         return '{{%cate_pvs}}';
     }
 	
-	/* 获取分类的属性
+	/**
+	 * 获取分类的属性
 	 * @param $cate_id int
 	 * @param $goods_id int 传goods_id表示：将该商品具有的属性设置选中状态
 	 */
-	public static function getCatePvs($cate_id, $goods_id = 0)
+	public static function getList($cate_id, $goods_id = 0)
 	{
-		$result = $values = array();
-		
-		$goodsPvs = [];
-		if($goods_id > 0) {
-			if(($query = GoodsPvsModel::find()->where(['goods_id' => $goods_id])->one())) {
-				$goodsPvs = explode(';', $query->pvs);
-			}
+		$selected = [];
+		if($goods_id > 0 && ($query = GoodsPvsModel::find()->select('pvs')->where(['goods_id' => intval($goods_id)])->one())) {
+			$selected = explode(';', $query->pvs);
 		}
 		
-		if(($query = parent::find()->where(['cate_id' => $cate_id])->one()))
+		$result = $values = [];
+		if(($query = parent::find()->select('pvs')->where(['cate_id' => intval($cate_id)])->one()))
 		{
-			$catePvs = $query->pvs;
-			foreach(explode(';', $catePvs) as $key => $val)
+			foreach(explode(';', $query->pvs) as $key => $value)
 			{
-				if(empty($val)) continue;
-				$item = explode(':', $val);
+				if(empty($value)) continue;
+				list($pid, $vid) = explode(':', $value);
 				
-				/* 检验属性名和属性值是否存在 */
-				if(($props = GoodsPropModel::find()->where(['pid' => $item[0], 'status' => 1])->asArray()->one())) {
-					if(($propValue = GoodsPropValueModel::find()->where(['pid' => $item[0], 'vid' => $item[1], 'status' => 1])->asArray()->one())) {
-						if($goodsPvs && in_array($val, $goodsPvs)) $propValue['selected'] = 1;
+				// 检验属性名和属性值是否存在
+				if(($props = GoodsPropModel::find()->select('pid,is_color,name,ptype,status')->where(['pid' => $pid, 'status' => 1])->asArray()->one())) {
+					if(($item = GoodsPropValueModel::find()->select('vid,pid,color,status,pvalue as value')->where(['pid' => $pid, 'vid' => $vid, 'status' => 1])->asArray()->one())) {
+						if($selected && in_array($value, $selected)) $item['selected'] = 1;
 						
-						$result[$item[0]] = $props;
-						$values[$item[0]][] = $propValue;
-						$result[$item[0]]['value'] = $values[$item[0]];
+						$result[$pid] = $props;
+						$values[$pid][] = $item;
+						$result[$pid]['values'] = $values[$pid];
 					}
 				}
 			}
 		}
-		return $result;
+
+		return array_values($result);
 	}
 }

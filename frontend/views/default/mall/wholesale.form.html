@@ -55,7 +55,7 @@
                         <div id="price_intervals" class="subbox-body price_intervals">
                             <div class="arrange">
                                 <div class="list">
-                                    <div class="each">{$lang.buy} <input name="quantity[]" type="text" class="text width_short" /> {$lang.upthen} <input type="text" class="text width_short" name="price[]" value="" /> {$lang.perprice}  <a href="javascript:;">{$lang.drop}</a></div>
+                                    <div class="each">{$lang.buy} <input name="rules[quantity][]" type="text" class="text width_short" /> {$lang.upthen} <input type="text" class="text width_short" name="rules[price][]" value="" /> {$lang.perprice}  <a href="javascript:;">{$lang.drop}</a></div>
                                 </div>
                                 <div class="add"><a href="javascript:;"> + {$lang.add}</a></div>
                             </div>
@@ -89,7 +89,7 @@ $(function(){
   if(list.length > 0){
     $("#price_intervals .list .each").remove();
     $.each(list,function(index,vaule){
-      $("#price_intervals .list").append('<div class="each">{$lang.buy} <input name="quantity[]" type="text" class="text width_short" value="'+vaule.quantity+'" /> {$lang.upthen} <input type="text" class="text width_short" name="price[]" value="'+vaule.price+'" /> {$lang.perprice}  <a href="javascript:;">{$lang.drop}</a></div>');               
+      $("#price_intervals .list").append('<div class="each">{$lang.buy} <input name="rules[quantity][]" type="text" class="text width_short" value="'+vaule.quantity+'" /> {$lang.upthen} <input type="text" class="text width_short" name="rules[price][]" value="'+vaule.price+'" /> {$lang.perprice}  <a href="javascript:;">{$lang.drop}</a></div>');               
     });
   }
 

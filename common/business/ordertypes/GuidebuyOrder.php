@@ -17,10 +17,8 @@ use common\models\OrderModel;
 use common\models\GoodsSpecModel;
 use common\models\RegionModel;
 use common\models\GuideshopModel;
-use common\models\WholesaleModel;
 
 use common\library\Language;
-use common\library\Timezone;
 use common\library\Page;
 use common\library\Def;
 use common\library\Promotool;

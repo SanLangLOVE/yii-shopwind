@@ -22,6 +22,7 @@ use common\plugins\payment\alipay\lib\request\AlipayTradePagePayRequest;
 use common\plugins\payment\alipay\lib\request\AlipayTradeWapPayRequest;
 use common\plugins\payment\alipay\lib\request\AlipayTradeAppPayRequest;
 use common\plugins\payment\alipay\lib\request\AlipayTradeRefundRequest;
+use common\plugins\payment\alipay\lib\request\AlipayFundTransUniTransferRequest;
 
 /**
  * @Id SDK.php 2018.7.19 $
@@ -84,7 +85,7 @@ class SDK
 	/**
 	 * 签名类型
 	 * @var string $signType
-	 */	
+	 */
 	public $signType = 'RAS2';
 
 	/**
@@ -122,38 +123,37 @@ class SDK
 	 */
 	public function __construct(array $config)
 	{
-		foreach($config as $key => $value) {
+		foreach ($config as $key => $value) {
 
-            if(substr($value, -3) == 'crt') {
+			if (substr($value, -3) == 'crt') {
 				$value = dirname(__FILE__) . DIRECTORY_SEPARATOR . $value;
 			}
 			$this->$key = $value;
-        }
+		}
 	}
-	
+
 	/**
 	 * 订单支付
 	 */
 	public function getPayform($orderInfo = array())
-    {
+	{
 		try {
-	
+
 			$aop = $this->getInstance();
-			if(!$aop) {
+			if (!$aop) {
 				return false;
 			}
-			
+
 			$biz_content = array(
 				'subject'       => $orderInfo['title'],
 				'out_trade_no'  => $this->payTradeNo,
 				'total_amount'  => $orderInfo['amount'],
 			);
 
-			if($this->terminal == 'WAP') {
+			if ($this->terminal == 'WAP') {
 				$request = new AlipayTradeWapPayRequest();
 				$biz_content['product_code'] = 'QUICK_WAP_WAY';
-			} 
-			else if($this->terminal == 'APP') {
+			} else if ($this->terminal == 'APP') {
 				$request = new AlipayTradeAppPayRequest();
 				$biz_content['product_code'] = 'QUICK_MSECURITY_PAY';
 			} else {
@@ -165,12 +165,11 @@ class SDK
 			$request->setReturnUrl($this->returnUrl);
 			$request->setNotifyUrl($this->notifyUrl);
 
-			if($this->terminal == 'APP') {
+			if ($this->terminal == 'APP') {
 				return $aop->sdkExecute($request);
 			}
-			
-			return $aop->pageExecute($request, 'get');
 
+			return $aop->pageExecute($request, 'get');
 		} catch (\Exception $e) {
 			$this->errors = $e->getMessage();
 			return false;
@@ -184,9 +183,9 @@ class SDK
 	public function getRefundform($orderInfo = array())
 	{
 		try {
-	
+
 			$aop = $this->getInstance();
-			if(!$aop) {
+			if (!$aop) {
 				return false;
 			}
 
@@ -199,17 +198,80 @@ class SDK
 
 			$request = new AlipayTradeRefundRequest();
 			$request->setBizContent(json_encode($biz_content));
-			$result = $aop->execute($request); 
-			
+			$result = $aop->execute($request);
+
 			$responseNode = str_replace(".", "_", $request->getApiMethodName()) . "_response";
 			$resultCode = $result->$responseNode->code;
-			if(empty($resultCode) || $resultCode != 10000) {
+			if (empty($resultCode) || $resultCode != 10000) {
 				$this->errors = $result->$responseNode->sub_msg ? $result->$responseNode->sub_msg : $result->$responseNode->msg;
 				return false;
-			} 
+			}
 
 			return true;
-			
+		} catch (\Exception $e) {
+			$this->errors = $e->getMessage();
+			return false;
+		}
+	}
+
+	/**
+	 * 转账接口只支持证书模式
+	 */
+	public function getTransform($orderInfo = array())
+	{
+		if (!$this->appId || !$this->rsaPrivateKey || !$this->alipayCertPath || !$this->appCertPath || !$this->rootCertPath) {
+			$this->errors = Language::get('params fail');
+			return false;
+		}
+
+		try {
+
+			$aop = new AopCertClient();
+			$aop->appId 				= $this->appId;
+			$aop->rsaPrivateKey 		= $this->rsaPrivateKey;
+			$aop->postCharset 			= Yii::$app->charset;
+			$aop->signType 				= $this->signType;
+			$aop->apiVersion 			= '1.0';
+
+			// 证书模式
+			$aop->alipayrsaPublicKey 	= $aop->getPublicKey($this->alipayCertPath);
+
+			//是否校验自动下载的支付宝公钥证书，如果开启校验要保证支付宝根证书在有效期内
+			$aop->isCheckAlipayPublicCert = true;
+
+			//调用getCertSN获取证书序列号
+			$aop->appCertSN = $aop->getCertSN($this->appCertPath);
+
+			//调用getRootCertSN获取支付宝根证书序列号
+			$aop->alipayRootCertSN = $aop->getRootCertSN($this->rootCertPath);
+
+			// 提现金额最低0.1
+			$biz_content = array(
+				'order_title' => $orderInfo['title'],
+				'out_biz_no'  => $this->payTradeNo,
+				'trans_amount' => $orderInfo['amount'],
+				'product_code' => 'TRANS_ACCOUNT_NO_PWD',
+				'payee_info'  => [
+					'identity'  => $orderInfo['payee']['account'],
+					'identity_type' => 'ALIPAY_LOGON_ID',
+					'name' => $orderInfo['payee']['name'],
+				],
+				'biz_scene' => 'DIRECT_TRANSFER',
+				//'remark' => '',
+			);
+
+			$request = new AlipayFundTransUniTransferRequest();
+			$request->setBizContent(json_encode($biz_content));
+			$result = $aop->execute($request);
+
+			$responseNode = str_replace(".", "_", $request->getApiMethodName()) . "_response";
+			$resultCode = $result->$responseNode->code;
+			if (empty($resultCode) || $resultCode != 10000) {
+				$this->errors = $result->$responseNode->sub_msg ? $result->$responseNode->sub_msg : $result->$responseNode->msg;
+				return false;
+			}
+
+			return $result->$responseNode;
 		} catch (\Exception $e) {
 			$this->errors = $e->getMessage();
 			return false;
@@ -221,7 +283,7 @@ class SDK
 	 */
 	private function getInstance()
 	{
-		if(!$this->appId || !$this->rsaPrivateKey || !$this->alipayCertPath || !$this->appCertPath || !$this->rootCertPath) {
+		if (!$this->appId || !$this->rsaPrivateKey || !$this->alipayCertPath || !$this->appCertPath || !$this->rootCertPath) {
 			$this->errors = Language::get('params fail');
 			return false;
 		}
@@ -244,7 +306,7 @@ class SDK
 
 		//调用getRootCertSN获取支付宝根证书序列号
 		$aop->alipayRootCertSN = $aop->getRootCertSN($this->rootCertPath);
-			
+
 		return $aop;
 	}
 
@@ -254,38 +316,36 @@ class SDK
 	public function verifyNotify($orderInfo, $notify)
 	{
 		// 验证与本地信息是否匹配。这里不只是付款通知，有可能是发货通知，确认收货通知
-        if ($orderInfo['payTradeNo'] != $notify['out_trade_no'])
-        {
-            // 通知中的订单与欲改变的订单不一致
-            $this->errors = Language::get('order_inconsistent');
-            return false;
-        }
-        if ($orderInfo['amount'] != $notify['total_amount']) 
-		{
-            // 支付的金额与实际金额不一致
-            $this->errors = Language::get('price_inconsistent');
-            return false;
-        }
-		
-        //至此，说明通知是可信的，订单也是对应的，可信的
-		if(in_array($notify['trade_status'], ['TRADE_FINISHED','TRADE_SUCCESS'])) {
+		if ($orderInfo['payTradeNo'] != $notify['out_trade_no']) {
+			// 通知中的订单与欲改变的订单不一致
+			$this->errors = Language::get('order_inconsistent');
+			return false;
+		}
+
+		// 必须加round避免字符类型不一致导致比对有误
+		if (round($orderInfo['amount']) != round($notify['total_amount'])) {
+			// 支付的金额与实际金额不一致
+			$this->errors = Language::get('price_inconsistent');
+			return false;
+		}
+
+		//至此，说明通知是可信的，订单也是对应的，可信的
+		if (in_array($notify['trade_status'], ['TRADE_FINISHED', 'TRADE_SUCCESS'])) {
 			$order_status = Def::ORDER_ACCEPTED;
-		}
-		elseif(in_array($notify['trade_status'], ['TRADE_CLOSED'])) {
+		} elseif (in_array($notify['trade_status'], ['TRADE_CLOSED'])) {
 			$order_status = Def::ORDER_CANCELED;
-		}
-		else {
+		} else {
 			$this->errors = Language::get('undefined_status');
 			return false;
 		}
 		return array('target' => $order_status);
 	}
-	
+
 	/**
 	 * 验证签名
 	 */
 	public function verifySign($notify)
-    {
+	{
 		// RSA2密钥验签
 		//$aop = new AopClient();
 		//$aop->alipayrsaPublicKey 	= $this->alipayrsaPublicKey;

@@ -15,9 +15,7 @@ use yii;
 use yii\helpers\ArrayHelper;
 
 use common\library\Basewind;
-use common\library\Resource;
 use common\library\Language;
-use common\library\Def;
 
 /**
  * @Id SDK.php 2018.6.5 $
@@ -152,6 +150,7 @@ class Taobao extends SDK
 		];
 
 		// 由于本系统限制，最多支持两种规格
+		$defaultSpec = [];
 		foreach($item->sku as $key => $value)
 		{
 			if($value->skuId == 0) {

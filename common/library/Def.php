@@ -72,7 +72,6 @@ class Def
 	const BELONG_GCATEGORY_AD	=  	41;
 	const BELONG_PORTRAIT		=  	50;
 	const BELONG_IDENTITY		=   51;
-	const BELONG_WEBIM			=	52;
 	const BELONG_REPORT			=   53;
 	const BELONG_GUIDESHOP		=	61;		// 团长门店招牌
 	const BELONG_POSTER 		=  	70;		// 海报图

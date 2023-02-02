@@ -29,18 +29,18 @@ class CartModel extends ActiveRecord
     {
         return '{{%cart}}';
     }
-	
-	// 关联表
-	public function getGoodsSpec()
-	{
-		return parent::hasOne(GoodsSpecModel::className(), ['spec_id' => 'spec_id']);
-	}
+
+    // 关联表
+    public function getGoodsSpec()
+    {
+        return parent::hasOne(GoodsSpecModel::className(), ['spec_id' => 'spec_id']);
+    }
 
     /**
      * 根据购买量执行阶梯价策略
      */
-    public static function reBuildByQuantity($list = array(), $otype = 'normal')
-	{
+    public static function reBuildByQuantity($list = [], $otype = 'normal')
+    {
         // 针对批发模式
         return WholesaleModel::reBuildByQuantity($list, $otype);
     }

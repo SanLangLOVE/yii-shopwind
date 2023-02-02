@@ -474,9 +474,9 @@ CREATE TABLE IF NOT EXISTS `swd_deposit_setting` (
 DROP TABLE IF EXISTS `swd_deposit_trade`;
 CREATE TABLE IF NOT EXISTS `swd_deposit_trade` (
   `trade_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `tradeNo` varchar(32) NOT NULL COMMENT '支付交易号',
-  `outTradeNo` varchar(32) DEFAULT '' COMMENT '第三方支付接口的交易号',
-  `payTradeNo` varchar(32) DEFAULT '' COMMENT '第三方支付接口的商户订单号',
+  `tradeNo` varchar(32) NOT NULL COMMENT '交易号',
+  `outTradeNo` varchar(255) DEFAULT '' COMMENT '第三方支付接口的交易号',
+  `payTradeNo` varchar(32) DEFAULT '' COMMENT '支付订单号',
   `bizOrderId` varchar(32) DEFAULT '' COMMENT '商户订单号',
   `bizIdentity` varchar(20) DEFAULT '' COMMENT '商户交易类型识别号',
   `buyer_id` int(11) NOT NULL COMMENT '交易买家',
@@ -514,7 +514,8 @@ CREATE TABLE IF NOT EXISTS `swd_deposit_withdraw` (
   `orderId` varchar(30) NOT NULL,
   `userid` int(10) unsigned NOT NULL DEFAULT '0',
   `drawtype` varchar(20) NOT NULL DEFAULT 'bank',
-  `account` varchar(50) DEFAULT NULL,
+  `terminal` varchar(20) NOT NULL DEFAULT '',
+  `account` varchar(255) DEFAULT NULL,
   `name` varchar(50) DEFAULT NULL,
   `bank` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`draw_id`),
@@ -1496,9 +1497,9 @@ CREATE TABLE IF NOT EXISTS `swd_teambuy_log` (
   `leader` tinyint(3) unsigned DEFAULT '0',
   `people` int(10) unsigned NOT NULL DEFAULT '2',
   `status` tinyint(3) unsigned DEFAULT '0',
-  `created` int(11) unsigned NOT NULL,
-  `expired` int(11) unsigned NOT NULL,
-  `pay_time` int(11) unsigned NOT NULL,
+  `created` int(11) unsigned NOT NULL DEFAULT '0',
+  `expired` int(11) unsigned NOT NULL DEFAULT '0',
+  `pay_time` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`logid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
@@ -1605,35 +1606,20 @@ CREATE TABLE IF NOT EXISTS `swd_user_token` (
 -- --------------------------------------------------------
 
 --
--- 表的结构 `swd_webim_log`
+-- 表的结构 `swd_webim`
 --
-DROP TABLE IF EXISTS `swd_webim_log`;
-CREATE TABLE IF NOT EXISTS `swd_webim_log` (
-  `logid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `fromid` int(10) unsigned NOT NULL DEFAULT '0',
-  `fromName` varchar(100) NOT NULL DEFAULT '',
-  `toid` int(10) unsigned NOT NULL DEFAULT '0',
-  `toName` varchar(100) NOT NULL DEFAULT '',
-  `type` varchar(20) DEFAULT '',
-  `content` varchar(255) DEFAULT '',
-  `formatContent` varchar(255) DEFAULT '',
-  `unread` int(10) unsigned DEFAULT '0',
-  `add_time` int(10) unsigned DEFAULT NULL,
-  PRIMARY KEY (`logid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `swd_webim_online`
---
-DROP TABLE IF EXISTS `swd_webim_online`;
-CREATE TABLE IF NOT EXISTS `swd_webim_online` (
-  `onid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `userid` int(10) unsigned NOT NULL DEFAULT '0',
-  `client_id` varchar(100) DEFAULT '',
-  `lasttime` int(10) unsigned DEFAULT NULL,
-  PRIMARY KEY (`onid`)
+DROP TABLE IF EXISTS `swd_webim`;
+CREATE TABLE IF NOT EXISTS `swd_webim` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `toid` int(11) NOT NULL,
+  `fromid` int(11) NOT NULL,
+  `groupid` varchar(255) NOT NULL,
+  `store_id` int(10) DEFAULT NULL,
+  `store_name` varchar(100) DEFAULT NULL,
+  `content` varchar(255) CHARACTER SET utf8mb4 NOT NULL,
+  `unread` int(11) NOT NULL DEFAULT '0',
+  `created` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -1705,7 +1691,7 @@ CREATE TABLE IF NOT EXISTS `swd_wholesale` (
   `store_id` int(10) unsigned DEFAULT '0',
   `price` decimal(10,2) unsigned DEFAULT '0.00',
   `quantity` int(10) unsigned DEFAULT '1',
-  `closed` int(1) DEFAULT '0',
+  `status` int(1) DEFAULT '1',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 

@@ -17,6 +17,7 @@ use yii\helpers\Url;
 use yii\helpers\Json;
 
 use common\models\OrderModel;
+use common\models\GuideshopModel;
 use common\models\DepositTradeModel;
 
 use common\library\Basewind;
@@ -85,8 +86,15 @@ class OrderController extends \common\controllers\BaseAdminController
 		if(!$post->id) {
 			return Message::warning(Language::get('no_such_order'));
 		}
-		if(!($order = OrderModel::find()->alias('o')->select('o.*,oe.consignee,oe.region_name,oe.zipcode,oe.phone_tel,oe.phone_mob,oe.address,oe.shipping_name')->where(['o.order_id' => $post->id])->joinWith('orderExtm oe', false)->with('orderGoods')->asArray()->one())) {
+		if(!($order = OrderModel::find()->alias('o')->select('o.*,oe.consignee,oe.region_name,oe.zipcode,oe.phone_tel,oe.phone_mob,oe.address,oe.shipping_name')
+			->where(['o.order_id' => $post->id])
+			->joinWith('orderExtm oe', false)
+			->with('orderGoods')->asArray()->one())) {
+
 			return Message::warning(Language::get('no_such_order'));
+		}
+		if($order['guider_id'] && ($array = GuideshopModel::find()->select('owner,phone_mob,region_name,address,name,banner')->where(['userid' => $order['guider_id']])->asArray()->one())) {
+			$this->params['guideshop'] = $array;
 		}
 		$this->params['order'] = $order;
 
@@ -246,6 +254,8 @@ class OrderController extends \common\controllers\BaseAdminController
             Def::ORDER_SUBMITTED	=> Language::get('order_submitted'),
             Def::ORDER_ACCEPTED		=> Language::get('order_accepted'),
             Def::ORDER_SHIPPED		=> Language::get('order_shipped'),
+			Def::ORDER_PICKING  	=> Language::get('order_picking'),
+			Def::ORDER_DELIVERED	=> Language::get('order_delivered'),
             Def::ORDER_FINISHED		=> Language::get('order_finished'),
             Def::ORDER_CANCELED		=> Language::get('order_canceled'),
         );

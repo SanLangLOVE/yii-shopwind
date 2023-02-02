@@ -10,7 +10,7 @@ return array(
 	'records_error' => '搭配宝贝数量必须大于等于2且小于等于5',
 	'goods_not_you' => '搭配宝贝中的部分商品不是您的',
 	'goods_not_on_sale' => '搭配宝贝中的部分商品出于禁售或者下架中',
-	'meal_price_error' => '套餐一口价必须小于套餐原价',
+	'meal_price_error' => '套餐一口价必须小于套餐原价：%s',
 	'meal_price_gt0'   => '套餐一口价必须大于0！',
 	'unavailable' => '无效',
 	'available' => '有效',

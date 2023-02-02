@@ -217,6 +217,9 @@ class SearchForm extends Model
 		if($post->praise_rate) {
 			$query->andWhere(['>','praise_rate', $post->praise_rate]);
 		}
+		if($post->keyword) {
+			$query->andWhere(['like','store_name', $post->keyword]);
+		}
 		
 		if($post->level)
 		{

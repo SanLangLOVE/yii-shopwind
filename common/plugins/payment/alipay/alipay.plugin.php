@@ -61,7 +61,7 @@ class Alipay extends BasePayment
 
 		if($sdk->terminal == 'APP') {
 			$params = ['orderInfo' => $params];
-		} else if($sdk->terminal == 'WAP') {
+		} else if($sdk->terminal == 'WAP' || Basewind::getCurrentApp() == 'api') {
 			$params = ['redirect' => $params];
 		} else {
 			header("location: $params");
@@ -86,6 +86,30 @@ class Alipay extends BasePayment
 		}
 		return true;
 	}
+
+	/**
+	 * 提交转账请求
+	 * 转账到支付宝钱包（提现）
+	 * 请确保服务器环境局配置了SSL(SSL certificate problem: unable to get local issuer certificate)
+	 */
+	public function transfer($orderInfo = array())
+    {
+		if($orderInfo['amount'] < 0.1) {
+			$this->errors = Language::get('money shall not be less than 0.1');
+			return false;
+		}
+
+		$sdk = $this->getClient();
+		$sdk->payTradeNo = $orderInfo['payTradeNo'];
+	
+		$result = $sdk->getTransform($orderInfo);
+        if($result === false) {
+			$this->errors = $sdk->errors;
+			return false;
+		}
+
+		return $result->order_id;
+    }
 	
 	/* 获取通知地址（不支持带参数） */
     public function createNotifyUrl($payTradeNo = '')

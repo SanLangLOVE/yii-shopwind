@@ -274,7 +274,7 @@
 <script type="text/javascript">
 	var specs = new Array();
 		{foreach from=$goods.goodsSpec item=spec}
-		specs.push(new spec({$spec.spec_id|default: 0}, '{$spec.spec_1}', '{$spec.spec_2}', '{$spec.image|url_format}', {$spec.price|default: 0}, {$spec.mkprice|default: 0}, {$spec.stock|default: 0}, {$goods.goods_id|default: 0}));
+		specs.push(new spec({$spec.spec_id|default: 0}, '{$spec.spec_1}', '{$spec.spec_2}', '{$spec.image|url_format}', {$spec.price|default: 0}, {$goods.mkprice|default: 0}, {$spec.stock|default: 0}, {$goods.goods_id|default: 0}));
 		{/foreach}
 	var specQty = {$goods.spec_qty};
 	var defSpec = {$goods.default_spec|default};

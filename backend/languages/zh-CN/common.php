@@ -18,7 +18,6 @@ return array(
 	'setting'				=>	'设置',
 	'credit'				=>	'信用卡',
 	'debit'					=>	'储蓄卡',
-	'wait_admin_verify'		=>	'等待系统审核',
 	'success'				=>	'交易成功',
 	'submitted'				=> 	'已提交',
 	'pending'				=>	'等待付款',
@@ -159,7 +158,6 @@ return array(
 	'order_picking'		=> '待配送',
 	'order_delivered'	=> '待取货',
     'order_canceled'    => '交易关闭',
-    'order_canceled'    => '交易关闭',
 	'order_submitted'   => '等待卖家发货',//'货到付款',
     'order_shipped'     => '卖家已发货',
     'order_finished'    => '交易完成',
@@ -173,7 +171,7 @@ return array(
 	'TRADE_SHIPPED'				=> '卖家已发货',
 	'TRADE_SUCCESS'				=> '交易完成',
 	'TRADE_CLOSED'				=> '交易关闭',
-	'TRADE_WAIT_ADMIN_VERIFY' 	=> '等待平台审核',
+	'TRADE_VERIFY' 				=> '等待平台审核',
 	
 	// 交易类型
 	'PAY'				=> '在线支付',
@@ -221,9 +219,6 @@ return array(
 	'captcha_failed' => '验证码错误',
 	'batch_del_for_selected'	=> '将选定行数据批量删除',
 
-	'webim' => '客服管理',
-	'imforbid' => '禁用IM',
-	
 	'weixin' 	=> '微信',
 	'weixin_setting' 	=> '公众号设置',
 	'weixin_applet'	=> '小程序设置',
@@ -298,7 +293,8 @@ return array(
     'db_recover' => '数据库恢复',
     'db_slave'=> '主从库配置',
     'guideshop' => '门店',
-    'guideshop_list' => '门店自提',
+    'guideshop_list' => '门店列表',
+	'guideshop_order'	=> '自提订单',
     'guideshop_setting' => '门店配置',
 	'guideshop_verify' => '门店审核',
 	'flagstore'=>'旗舰店管理',

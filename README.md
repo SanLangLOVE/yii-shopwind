@@ -13,7 +13,7 @@
 <div align="center">
 
 [![php语言](https://img.shields.io/badge/language-php-red)](https://www.shopwind.net/)
-[![V3.4.2](https://img.shields.io/badge/release-3.4.2-blue)](https://www.shopwind.net/product/download.html)
+[![V3.4.3](https://img.shields.io/badge/release-3.4.3-blue)](https://www.shopwind.net/product/download.html)
 [![license](https://img.shields.io/badge/license-Apache2.0-green)](https://www.shopwind.net/license/)
 
 </div>
@@ -59,10 +59,10 @@ ShopWind是2018年公司正式启用的电商系统品牌，并将其定位为�
 * H5端体验：<a href="https://h5.shopwind.net" target="_blank"> https://h5.shopwind.net </a> 买家测试账号：18978189192 密码：111111  支付密码：111111
 
 #### 小程序/APP体验（商业版）
-* 微信小程序（手机浏览器点击链接）：<a href="https://wxaurl.cn/VUdm2kw795s" target="_blank"> https://wxaurl.cn/VUdm2kw795s </a> 
+* 微信小程序：<a href="https://h5.shopwind.net/20210507181842.jpg" target="_blank"> https://h5.shopwind.net/20210507181842.jpg </a> 
 * Android（安卓版）体验：<a href="https://appgallery.huawei.com/#/app/C103448437" target="_blank"> https://appgallery.huawei.com/#/app/C103448437 </a>
 * iOS（苹果版）体验：<a href="https://apps.apple.com/cn/app/id1548625748" target="_blank"> https://apps.apple.com/cn/app/id1548625748 </a>
-* 商家端体验（小程序）：<a href="https://wxaurl.cn/gIG5wMZSOFc" target="_blank"> https://wxaurl.cn/gIG5wMZSOFc </a>
+* 商家端体验（小程序）：<a href="https://h5.shopwind.net/gh_fea54cf5a4a8_258.jpg" target="_blank"> https://h5.shopwind.net/gh_fea54cf5a4a8_258.jpg </a>
 * 通用体验账号：买家（账号：18978189192   密码：111111  支付密码：111111）、商家（账号：18978189171  密码：111111）
 
 #### 页面展示
@@ -131,7 +131,7 @@ ShopWind系统归属于广西南宁领众网络科技有限公司所有，早在
 
 * 开发文档：[https://developer.shopwind.net](https://developer.shopwind.net)
 
-* API接口文档：[http://docs.shopwind.net/dev-api](http://docs.shopwind.net/dev-api)
+* API接口文档：[http://docs.shopwind.net](http://docs.shopwind.net)
 
 * ShopWind开源协议：[https://www.shopwind.net/license/](https://www.shopwind.net/license/)
 

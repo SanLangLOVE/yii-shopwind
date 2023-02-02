@@ -58,39 +58,35 @@ class AppmarketModel extends ActiveRecord
 	 */
 	public function checkAvailable($appid, $store_id = 0, $force = true)
 	{
-		// 是否发布到应用市场
-		$query = parent::find()->select('status')->where(['appid' => $appid])->one();
+		// 已发布到市场
+		if($query = parent::find()->select('status')->where(['appid' => $appid])->one()) {
+			
+			// 若平台禁用
+			if(!$query->status) {
+				$this->errors = Language::get('appDisAvailable');
+				return false;
+			}
 
-		// 没有发布，则所有卖家可免费使用
-		if(!$query) {
-			return true;
+			// 以下为发布到应用市场，所有卖家需要订购后才可使用
+			// 在此处判断商家是否购买了该营销工具
+			$apprenewal = ApprenewalModel::find()->select('expired')->where(['appid' => $appid, 'userid' => $store_id])->orderBy(['rid' => SORT_DESC])->one();
+			
+			// 如果没有购买
+			if(!$apprenewal) {
+				$this->errors = Language::get('appHasNotBuy');
+				return false;
+			}
+			
+			// 如果购买了，已过期
+			if($apprenewal->expired <= Timezone::gmtime()) {
+				$this->errors = Language::get('appHasExpired');
+				return false;
+			}
 		}
-
-		// 已发布到市场，若平台禁用
-		if(!$query->status) {
-			$this->errors = Language::get('appDisAvailable');
-			return false;
-		}
-
-		// 以下为发布到应用市场，所有卖家需要订购后才可使用
-		// 在此处判断商家是否购买了该营销工具
-		$apprenewal = ApprenewalModel::find()->select('expired')->where(['appid' => $appid, 'userid' => $store_id])->orderBy(['rid' => SORT_DESC])->one();
 		
-		// 如果没有购买
-		if(!$apprenewal) {
-			$this->errors = Language::get('appHasNotBuy');
-			return false;
-		}
-		
-		// 如果购买了，已过期
-		if($apprenewal->expired <= Timezone::gmtime()) {
-			$this->errors = Language::get('appHasExpired');
-			return false;
-		}
-
-		// 如果购买了，但商家禁用/或未配置优惠（目前只有 满包邮、满优惠、手机专享 有此控制）
+		// 如果商家禁用/或未配置优惠（目前只有 满包邮、满优惠、手机专享 有此控制）
 		if($force && in_array($appid, ['exclusive', 'fullfree', 'fullprefer'])) {
-			if(!($model = PromotoolSettingModel::find()->select('status')->where(['appid' => $appid, 'store_id' => $store_id, 'status' => 1])->one())) {
+			if(!PromotoolSettingModel::find()->where(['appid' => $appid, 'store_id' => $store_id, 'status' => 1])->exists()) {
 				$this->errors = Language::get('appDisabled');
 				return false;
 			}

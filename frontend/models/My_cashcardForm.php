@@ -15,6 +15,7 @@ use Yii;
 use yii\base\Model; 
 
 use common\models\CashcardModel;
+use common\models\DepositTradeModel;
 
 use common\library\Basewind;
 use common\library\Timezone;
@@ -30,7 +31,16 @@ class My_cashcardForm extends Model
 
 	public function formData($post = null, $pageper = 4, $isAJax = false, $curPage = false) 
 	{
-		$query = CashcardModel::find()->alias('c')->select('c.cardNo,c.id,c.name,c.money,c.add_time,c.active_time,c.expire_time, dt.tradeNo')->joinWith('depositTrade dt', false)->where(['useId' => Yii::$app->user->id])->orderBy(['id' => SORT_DESC]);
+		$query = CashcardModel::find()->select('cardNo,id,name,money,add_time,active_time,expire_time')
+			->where(['useId' => Yii::$app->user->id])
+			->orderBy(['active_time' => SORT_DESC, 'id' => SORT_DESC]);
+		
+		if($post->cardNo) {
+			$query->andWhere(['cardNo' => $post->cardNo]);
+		}
+		if($post->keyword) {
+			$query->andWhere(['like', 'name', $post->keyword]);
+		}
 	
 		$page = Page::getPage($query->count(), $pageper, $isAJax, $curPage);
 		$recordlist = $query->offset($page->offset)->limit($page->limit)->asArray()->all();
@@ -42,6 +52,10 @@ class My_cashcardForm extends Model
 				if(Timezone::gmtime() > $record['expire_time']) {
 					$recordlist[$key]['valid'] = 0;
 				}
+			}
+
+			if($tradeNo = DepositTradeModel::find()->select('tradeNo')->where(['bizOrderId' => $record['cardNo']])->scalar()) {
+				$recordlist[$key]['tradeNo'] = $tradeNo;
 			}
 			 
 			if(in_array(Basewind::getCurrentApp(), ['api'])) {

@@ -32,8 +32,6 @@ class WholesaleForm extends Model
 	
 	public function valid($post = null)
 	{
-		$result = array();
-		
 		if(($message = Promotool::getInstance('wholesale')->build(['store_id' => $this->store_id])->checkAvailable()) !== true) {
 			$this->errors = $message;
 			return false;
@@ -44,7 +42,7 @@ class WholesaleForm extends Model
 			return false;
         }
 
-		if(!isset($post->quantity) || empty($post->quantity) || !isset($post->price) || empty($post->price)) {
+		if(!isset($post->rules) || empty($post->rules)) {
 			$this->errors = Language::get('fill_price');
 			return false;
 		}
@@ -58,25 +56,23 @@ class WholesaleForm extends Model
 			return false;
 		}
 
-		$post = ArrayHelper::toArray($post);
-
 		// 留存副本
-		$allId = WholesaleModel::find()->select('id')->where(['goods_id' => $post['goods_id'], 'store_id' => $this->store_id])->column();
+		$allId = WholesaleModel::find()->select('id')->where(['goods_id' => $post->goods_id, 'store_id' => $this->store_id])->column();
 
 		$insertId = [];
-		foreach($post['quantity'] as $key => $value)
+		foreach($post->rules as $key => $value)
 		{
-			if(!$value || !isset($post['price'][$key]) || !$post['price'][$key]) {
+			if(empty($value) || $value->quantity < 2 || $value->price < 0) {
 				$this->errors =  Language::get('fill_price');
 				break;
 			}
 
 			$model = new WholesaleModel();
 			$model->store_id = $this->store_id;
-			$model->goods_id = $post['goods_id'];
-			$model->quantity = $value;
-			$model->price = $post['price'][$key];
-			$model->closed = 0;
+			$model->goods_id = $post->goods_id;
+			$model->quantity = $value->quantity;
+			$model->price = $value->price;
+			$model->status = isset($post->status) ? intval($post->status) : 1;
 			if(!$model->save()) {
 				$this->errors = $model->errors ? $model->errors : Language::get('handle_fail');
 				break;

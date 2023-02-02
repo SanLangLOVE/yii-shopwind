@@ -62,7 +62,6 @@ return array(
 	
 	'shipped'		=>	'卖家已发货',
 	'accepted'	=>	'等待卖家发货',
-	'wait_admin_verify'	=>	'等待系统审核',
 	'success'			=>	'交易完成',
 	'closed'		=>	'交易关闭',
 	'seller_cancel_order'	=>	'卖家取消订单',
@@ -71,7 +70,7 @@ return array(
 	'transfer_fee'	=>	'转账服务费',
 	'brokerage_fee'	=>	'佣金费',
 	'rebate_fee'	=>	'赚取佣金',
-	'chargeback'=>	'收费',
+	'chargeback'=>	'扣减服务费',
 	'charge' 	=> '收费',
 	'defray'		=>	'支付',
 	'system_recharge'		=>	'系统充值',
@@ -105,7 +104,7 @@ return array(
 	'my_delivery'=>'运费模板管理',
 	'express'=>'快递',
 	'ems'	 =>'EMS',
-	'post'   =>'平邮',
+	'post'   =>'邮政',
 	'delivery_add'=>'添加运费模板',
 	'delivery_edit'=>'编辑运费模板',
 	'delivery_list'=>'运费模板列表', 
@@ -305,7 +304,7 @@ return array(
 	'TRADE_SHIPPED'				=> '卖家已发货',
 	'TRADE_SUCCESS'				=> '交易完成',
 	'TRADE_CLOSED'				=> '交易关闭',
-	'TRADE_WAIT_ADMIN_VERIFY' 	=> '等待平台审核',	
+	'TRADE_VERIFY' 				=> '等待平台审核',	
 
 	
 	// 针对退款的状态

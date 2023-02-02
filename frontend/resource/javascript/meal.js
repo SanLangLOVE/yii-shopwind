@@ -18,7 +18,7 @@ $(function(){
 	});
 });
 	
-function selectSpec(num, liObj ,specQty ,goods_id, meal_price)
+function selectSpec(num, liObj ,specQty ,goods_id)
 {
 	$(liObj).attr("class", "solid");
 	$(liObj).siblings(".solid").attr("class", "dotted");
@@ -45,10 +45,10 @@ function selectSpec(num, liObj ,specQty ,goods_id, meal_price)
 	{
 		var spec_2 = $(liObj).find('span').html(); //选择当前属性项
 		var spec_1 = $(liObj).parent().siblings('ul').children('.solid').find('span').html();
-		getSpecs(num,liObj,specQty,goods_id,spec_1,spec_2, meal_price);
+		getSpecs(num,liObj,specQty,goods_id,spec_1,spec_2);
 	}
 }
-function getSpecs(num,liObj,specQty,goods_id,spec_1,spec_2, meal_price)
+function getSpecs(num,liObj,specQty,goods_id,spec_1,spec_2)
 {
 	$.getJSON(url(['meal/specinfo']), {num:num,specQty:specQty,goods_id:goods_id,spec_1:spec_1,spec_2:spec_2}, function(data){
 		if (data.done) { 
@@ -61,8 +61,6 @@ function getSpecs(num,liObj,specQty,goods_id,spec_1,spec_2, meal_price)
 			$('.J_SpecPrice').each(function(index, element) {
 				sprice += parseFloat($(this).attr('price'));
 			});
-			
-			$(".J_TotalSave").html(price_format(parseFloat(sprice)-parseFloat(meal_price)))
 		}
 		else
 		{

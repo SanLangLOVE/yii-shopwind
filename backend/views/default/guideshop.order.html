@@ -1,0 +1,118 @@
+{include file="header.html"}
+<div id="main">
+  {include file="menus.html"}
+  <div id="rightCon" class="clearfix layui-body">
+    <div class="scroller">
+      <div class="search-form clearfix">
+        <form method="get" id="formSearch">
+        <div class="webkit-box box-align-center">
+          <input type="hidden" name="r" value="guideshop/order" />
+          <select class="querySelect" name="field">
+            {html_options options=$search_options selected=$smarty.get.field}
+          </select>
+          <input class="infoTableInput mr10" type="text" name="search_name" value="{$smarty.get.search_name|escape}" />
+          <label class="mr5">{$lang.search_status}</label>
+          <select class="querySelect" name="status">
+            <option value="">{$lang.no_limit}</option>
+            {html_options options=$status_list selected=$smarty.get.status}
+          </select>
+          {$lang.order_amount_from}
+          <input class="queryInput2" type="text" value="{$smarty.get.order_amount_from}" name="order_amount_from" />
+          {$lang.order_amount_to}
+          <input class="queryInput2 pick_date" type="text" style="width:60px;" value="{$smarty.get.order_amount_to}"
+            name="order_amount_to" />
+          </div>
+          <div class="webkit-box box-align-center mt20">
+          {$lang.add_time_from}
+          <input class="queryInput pick_date" type="text" value="{$smarty.get.add_time_from}" id="add_time_from"
+            name="add_time_from" />
+          {$lang.add_time_to}
+          <input class="queryInput pick_date" type="text" value="{$smarty.get.add_time_to}" id="add_time_to" name="add_time_to" />
+          <input type="submit" class="layui-btn layui-bg-blue layui-btn-sm block width7" value="{$lang.query}" />
+          <!--{if $filtered}-->
+          <a class="layui-btn layui-btn-primary layui-btn-sm box-align-center" href="{url route='guideshop/order'}">{$lang.cancel_query}</a>
+          <!--{/if}-->
+          </div>
+        </form>
+      </div>
+      <div class="tablegrid">
+        <table class="layui-hide" id="tablegrid" lay-filter="tablegrid"></table>
+      </div>
+      {include file="version.html"}
+    </div>
+  </div>
+</div>
+<script type="text/html" id="toolbar">
+	<div class="layui-btn-container">
+	  <button class="layui-btn layui-btn-primary layui-border-black" lay-event="export"><i class="layui-icon layui-icon-export"></i>导出数据</button>
+	</div>
+</script>
+
+<script type="text/html" id="colBar">
+	<a class="ml5 mr5 blue pointer" lay-event="view">查看</a>
+</script>
+<script>
+  layui.use('table', function () {
+    var table = layui.table;
+
+    table.render({
+      elem: '#tablegrid'
+      //,skin: 'line'
+      , url: url(['guideshop/order', $("#formSearch").serializeJson()])
+      , toolbar: '#toolbar'
+      , defaultToolbar: ['filter', /*'exports',*/ 'print']
+      , title: '订单列表'
+      //, size: 'lg'
+      , cols: [[
+        { type: 'checkbox', fixed: 'left' }
+        , { field: 'order_id', title: 'ID', width: 70, fixed: 'left', unresize: true, sort: true }
+        , { field: 'order_sn', title: '订单编号', width: 200 }
+        , { field: 'tradeNo', title: '交易号', width: 200, templet: function(res) {
+            return res.tradeNo ? res.tradeNo : '';
+        }}
+        , { field: 'store_name', title: '店铺名称', width: 160 }
+        , { field: 'buyer_name', title: '买家', width: 150 }
+        , { field: 'order_amount', title: '订单金额', width: 125, sort: true, align: 'center' }
+        , { field: 'status', title: '订单状态', width: 160, sort: true, align: 'center' }
+        , { field: 'payment_name', title: '支付方式', width: 120 }
+        , { field: 'add_time', title: '下单时间', width: 170, sort: true, align: 'center' }
+        , { field: 'pay_time', title: '付款时间', width: 170, sort: true, align: 'center' }
+        , { field: 'finished_time', title: '完成时间', width: 170, sort: true, align: 'center' }
+        , { fixed: 'right', title: '操作', toolbar: '#colBar', width: 120, align: 'center' }
+      ]]
+      , page: {
+        theme: 'blue'
+      }
+    });
+
+    //监听头工具栏事件
+    table.on('toolbar(tablegrid)', function (obj) {
+      var checkStatus = table.checkStatus(obj.config.id);
+      if (checkStatus.data.length <= 0) {
+        return false;
+      }
+      var items = new Array();
+      $.each(checkStatus.data, function (i, item) {
+        items.push(item.order_id);
+      });
+
+      if (obj.event === 'export') {
+        window.location.href = url(['order/export', $.extend($("#formSearch").serializeJson(), { id: items.join(',') })]);
+      }
+    });
+
+    //监听行工具事件
+    table.on('tool(tablegrid)', function (obj) {
+      var data = obj.data;
+      if (obj.event === 'view') {
+        window.location.href = url(['order/view', { id: data.order_id }]);
+      }
+    });
+  });
+
+  $(function () {
+    $('#add_time_from').datepicker({ dateFormat: 'yy-mm-dd' });
+    $('#add_time_to').datepicker({ dateFormat: 'yy-mm-dd' });
+  });
+</script>
+{include file="footer.html"}

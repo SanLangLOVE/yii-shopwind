@@ -24,8 +24,6 @@ return array(
 	'receiver_text' => '填写接收手机信息的号码',
 	'confirm_send' => '确定发送',
 	'rechargemsg' => '充值短信',
-	'send_msg_successed' => '短信发送成功',
-	'err_send_faild' => '短信发送失败',
 	'sendlog' => '发送记录',
 	'quantity' => '数量',
 	'state' => '状态',

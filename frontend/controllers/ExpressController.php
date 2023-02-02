@@ -47,6 +47,10 @@ class ExpressController extends \common\controllers\BaseUserController
     public function actionIndex()
     {
 		$post = Basewind::trimAll(Yii::$app->request->get(), true, ['order_id']);
+		if(in_array($post->role, ['buyer', 'seller'])) {
+            Yii::$app->session->set('userRole', $post->role);
+        }
+
 		if(!$post->order_id || !($order = OrderModel::find()->select('express_code,express_no,express_comkey,express_company,buyer_id,seller_id')->where(['order_id' => $post->order_id])->andWhere(['in', 'status', [Def::ORDER_SHIPPED,Def::ORDER_FINISHED]])->andWhere(['or', ['buyer_id' => Yii::$app->user->id], ['seller_id' => Yii::$app->user->id]])->one())) {
 			return Message::warning(Language::get('no_such_order'));
 		}

@@ -13,8 +13,6 @@ namespace common\plugins\connect\weixin;
 
 use yii;
 
-use common\models\WeixinSettingModel;
-
 use common\library\Basewind;
 use common\library\Language;
 
@@ -29,8 +27,8 @@ class SDK
 	 * 插件网关
 	 * @param string $gateway
 	 */
-	protected $gateway = 'https://open.weixin.qq.com/connect/qrconnect';
-	
+	public $gateway = 'https://open.weixin.qq.com/connect/oauth2/authorize';
+
 	/**
 	 * 商户ID
 	 * @param string $appId
@@ -59,84 +57,53 @@ class SDK
 	 */
 	public function __construct(array $config)
 	{
-		foreach($config as $key => $value) {
-            $this->$key = $value;
-        }
+		foreach ($config as $key => $value) {
+			$this->$key = $value;
+		}
 	}
-	
+
 	public function getAccessToken($code = '')
 	{
 		$response = json_decode(Basewind::curl($this->getOpenIdUrl($code)));
-		if($response->errcode) {
+		if ($response->errcode) {
 			$this->errors = $response->errmsg;
 			return false;
 		}
 
-		if(!isset($response->unionid)) {
+		if (!isset($response->unionid)) {
 			$response->unionid = $response->openid;
 		}
 
 		return $response;
 	}
-	
+
 	public function getUserInfo($resp = null)
 	{
-		if(!$resp->access_token) {
+		if (!$resp->access_token) {
 			$this->errors = Language::get('access_token_empty');
 			return false;
 		}
-		
-		$url = "https://api.weixin.qq.com/sns/userinfo?access_token=".$resp->access_token."&openid=".$resp->openid;
+
+		$url = "https://api.weixin.qq.com/sns/userinfo?access_token=" . $resp->access_token . "&openid=" . $resp->openid;
 		$response = json_decode(Basewind::curl($url));
-		if($response->errcode) {
+		if ($response->errcode) {
 			$this->errors = $response->errmsg;
 			return false;
 		}
-		
+
 		return $response;
 	}
-	
+
 	public function getAuthorizeURL()
 	{
-		$data = array(
-			'gateway'       => $this->gateway,
-			'appId'			=> $this->appId,
-			'appKey'		=> $this->appKey,
-			'redirect_uri'	=> $this->redirect_uri,
-			'response_type' => 'code',
-			'scope' 		=> 'snsapi_login',
-			'state' 		=> mt_rand()
-		);
-		if(Basewind::isWeixin())
-		{
-			// 读取微信公众号的
-			if(!($config = WeixinSettingModel::find()->select('appid,appsecret')->where(['userid' => 0, 'code' => 'mp'])->asArray()->one())) {
-				$config = array();
-			}
-			
-			$data['gateway']= 'https://open.weixin.qq.com/connect/oauth2/authorize';
-			$data['appId']	= $config['appid'];
-			$data['appKey'] = $config['appsecret'];
-			$data['scope'] 	= 'snsapi_userinfo';
-		}
-		extract($data);
-		
-		$url = $gateway.'?appid='.$appId.'&redirect_uri='.$redirect_uri.'&response_type='.$response_type.'&scope='.$scope.'&state='.$state.'#wechat_redirect';
-		
-		return $url;
+		return $this->gateway . '?appid=' . $this->appId .
+			'&redirect_uri=' . $this->redirect_uri .
+			'&response_type=code&scope=snsapi_userinfo&state=' . mt_rand() . '#wechat_redirect';
 	}
-	
-	private function getOpenIdUrl($code = '')
+
+	public function getOpenIdUrl($code = '')
 	{
 		$gateway = 'https://api.weixin.qq.com/sns/oauth2/access_token';
-		$url = $gateway.'?appid='.$this->appId.'&secret='.$this->appKey;
-		if(Basewind::isWeixin())
-		{
-			// 读取微信公众号的
-			if(($config = WeixinSettingModel::find()->select('appid,appsecret')->where(['userid' => 0, 'code' => 'mp'])->asArray()->one())) {
-				$url = $gateway.'?appid='.$config['appid'].'&secret='.$config['appsecret'];
-			}
-		}
-		return $url .'&code='.$code.'&grant_type=authorization_code';
+		return $gateway . '?appid=' . $this->appId . '&secret=' . $this->appKey . '&code=' . $code . '&grant_type=authorization_code';
 	}
 }

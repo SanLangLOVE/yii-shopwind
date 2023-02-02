@@ -19,6 +19,7 @@ use common\models\MealGoodsModel;
 use common\models\GoodsModel;
 use common\models\GoodsSpecModel;
 use common\models\GoodsStatisticsModel;
+use common\models\StoreModel;
 
 use common\library\Basewind;
 use common\library\Language;
@@ -40,7 +41,7 @@ class MealForm extends Model
 	public function formData($post = null, $queryitem = true, $orderBy = [], $ifpage = false, $pageper = 10, $isAJax = false, $curPage = false)
 	{
 		// 缺省条件时，查询所有搭配购
-		$query = MealModel::find()->alias('m')->select('m.meal_id,m.created,m.title,m.price as mealPrice,m.status,s.store_id,s.store_name')->joinWith('store s', false)->where(['status' => 1]);
+		$query = MealModel::find()->select('meal_id,created,title,price,status,store_id')->orderBy(['meal_id' => SORT_DESC]);
 
 		// 查询的是某个具体的搭配购
 		if($this->id) {
@@ -63,7 +64,10 @@ class MealForm extends Model
 			$query->andWhere(['or', ['like', 'title', $post->keyword], ['like', 'keyword', $post->keyword]]);
 		}
 		if($post->store_id) {
-			$query->andWhere(['s.store_id' => $post->store_id]);
+			$query->andWhere(['store_id' => $post->store_id]);
+		}
+		if(isset($post->status) && $post->status != '' && $post->status != null) {
+			$query->andWhere(['status' => intval($post->status)]);
 		}
 
 		if(!$ifpage) {
@@ -75,33 +79,46 @@ class MealForm extends Model
 
 		foreach($list as $key => $value)
 		{
+			if($array = StoreModel::find()->select('store_name')->where(['store_id' => $value['store_id']])->asArray()->one()) {
+				$list[$key] = array_merge($value, $array);
+			}
+
 			$items = $value['mealGoods'];
 			unset($list[$key]['mealGoods']);
 			if($queryitem && empty($items)) {
-				$list[$key]['status'] = 0; // 设为失效
+				$list[$key]['status'] = 0; 
+				MealModel::updateAll(['status' => 0], ['meal_id' => $value['meal_id']]); // 设为失效
 			}
 			if(!empty($items)) {
-				$allPrice = 0;
+				$total = [0, 0];
 				foreach($items as $k => $v) {
-					$allPrice += $v['price'];
+					$prices = [$v['price'], $v['price']];
 					$items[$k]['goods_image'] = Page::urlFormat($v['goods_image'], Yii::$app->params['default_goods_image']);
-					if(($specs = GoodsSpecModel::find()->select('goods_id,price,spec_1,spec_2,spec_id,image')->where(['goods_id' => $v['goods_id']])->asArray()->all())) {
+					$items[$k]['stocks'] = 0;
+					if(($specs = GoodsSpecModel::find()->select('goods_id,price,stock,spec_1,spec_2,spec_id,image')->where(['goods_id' => $v['goods_id']])->asArray()->all())) {
+						
 						foreach($specs as $k1 => $v1) {
 							$specs[$k1]['image'] = Page::urlFormat($v1['image']);
+							$items[$k]['stocks'] += $v1['stock'];
+
+							if($prices[0] > $v1['price']) $prices[0] = $v1['price'];
+							if($prices[1] < $v1['price']) $prices[1] = $v1['price'];
 						}
 						$items[$k]['specs'] = $specs;
-						$items[$k]['sales'] = GoodsStatisticsModel::find()->select('sales')->where(['goods_id' => $v['goods_id']])->scalar();
+						$items[$k]['sales'] = intval(GoodsStatisticsModel::find()->select('sales')->where(['goods_id' => $v['goods_id']])->scalar());
 						$items[$k]['specification'] = $this->getDefaultSpecification($v, $specs);
 
 						if(Basewind::getCurrentApp() != 'api') {
-							$items[$k]['unispecs'] = $v['spec_qty'] > 0 ? $this->formatSpecs($specs) : array();
+							$items[$k]['unispecs'] = $v['spec_qty'] > 0 ? $this->formatSpecs($specs) : [];
 						}
 					}
+					
+					$total = [$total[0] + $prices[0], $total[1] + $prices[1]];
 				}
-				$list[$key]['price'] = $allPrice;
+				$list[$key]['total'] = ($total[0] == $total[1]) ? $total[0] : $total;
 			}
 			$list[$key]['created'] = Timezone::localDate('Y-m-d H:i:s', $value['created']);
-			$list[$key]['items'] = $list[$key]['status'] ? $items : array();
+			$list[$key]['items'] = $items;
 		}
 
 		return array($list, $page);
