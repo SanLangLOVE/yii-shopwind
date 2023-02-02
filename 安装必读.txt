@@ -30,8 +30,6 @@ ShopWind开发者交流群：86696159
 https://www.shopwind.net/static/images/authorize1.jpg
 https://www.shopwind.net/static/images/authorize2.jpg
 
-111
-
 
 **系统基础功能配置**
 
